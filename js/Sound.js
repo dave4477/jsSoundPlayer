@@ -17,7 +17,7 @@ export default class Sound {
         this.masterGain = masterGain;
 
         this.url = url;
-        this.id = url; //url.substring(url.lastIndexOf("/")+1, url.lastIndexOf("\."));
+        this.id = url; 
 
         if (!this.context) {
             this.sourceNode = buffer;

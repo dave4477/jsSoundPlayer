@@ -1,6 +1,12 @@
 import Loader from './Loader.js';
 import Sound from './Sound.js';
 
+/**
+ * Main SoundPlayer class used for controlling sounds. 
+ * The SoundPlayer currently supports wav, mp3 and ogg format.
+ * Additional functionality is volume control for each sound, panning
+ * and some equalizer / FX.
+ */
 export default class SoundPlayer {
 	constructor() {
 		this.sounds = {};
@@ -12,6 +18,8 @@ export default class SoundPlayer {
 	
 	/**
 	 * Loads sounds from an array of URLs.
+	 * @param {Array} sounds. An array of urls to a soundfile.
+	 * @returns A promise which is resolved if all sounds are loaded, otherwise rejected.
 	 */
 	loadSounds(sounds) {	
 		return new Promise((resolve, reject) => {		
@@ -56,18 +64,13 @@ export default class SoundPlayer {
 	 * If the sound was already loaded, we play it from cache if autoStart is true,
 	 * otherwise we will load the sound first and then play it if autoStart is true.
 	 *
-	 * @function playSound.
+	 * @method playSound.
 	 * @param {string} id The id or url from where to load the sound.
 	 * @param {boolean} loop Whether to loop the playback. Default is false.
 	 * @param {number} volume The amount of damage we want to cause to ears. 0 for no sound, 1 for normal volume. Default is 1.
 	 * @param {boolean} autoStart Automatically starts playing when <code>true</code>. Default is true.
 	 */
-	playSound(id, loop, volume, autoStart) {
-		// Set default values.
-		var loop = loop || false;
-		var volume = (volume !== null && volume !== undefined) ? volume : 1;
-		var autoStart = autoStart || true;
-
+	playSound(id, loop = false, volume = 1, autoStart = true) {
 		if (this.sounds[id]) {
 			this.sounds[id].loop = this.sounds[id].sourceNode.loop = loop;
 			this.sounds[id].volume = volume;
@@ -86,7 +89,7 @@ export default class SoundPlayer {
 
 	/**
 	 * Stops a loaded / playing sound.
-	 * @function stopSound
+	 * @method stopSound
 	 * @param {string} id
 	 */
 	stopSound(id) {
@@ -97,7 +100,6 @@ export default class SoundPlayer {
 
 	/**
 	 * toggle sound to opposite of current state.
-	 * @function toggleSound
 	 * @method toggleSound
 	 */
 	toggleSound() {
@@ -110,7 +112,7 @@ export default class SoundPlayer {
 
 	/**
 	 * Mutes the sound and tells server about it.
-	 * @function mute
+	 * @method mute
 	 */
 	mute() {
 		if (this.context) {
@@ -126,7 +128,7 @@ export default class SoundPlayer {
 
 	/**
 	 * Unmutes the sound and tells server about it.
-	 * @function unmute
+	 * @method unmute
 	 */
 	unmute() {
 		if (this.context) {
@@ -142,7 +144,7 @@ export default class SoundPlayer {
 
 	/**
 	 * Returns all sounds that were loaded.
-	 * @function getAllSounds
+	 * @method getAllSounds
 	 * @returns {Array} All loaded sound instances.
 	 */
 	getAllSounds() {
@@ -151,7 +153,7 @@ export default class SoundPlayer {
 
 	/**
 	 * Returns a sound by it's id.
-	 * The id is typically the filename without file extention.
+	 * The id is typically the filename without file extension.
 	 * @param {string} id The id for the loaded sound to fetch.
 	 * @return {Sound} An instance of Sound with all it's properties and methods.
 	 */
@@ -161,7 +163,7 @@ export default class SoundPlayer {
 
 	/**
 	 * Returns an array of all currently playing sounds.
-	 * @function getPlayingSounds
+	 * @method getPlayingSounds
 	 * @returns {Array} All sounds instances that are currently playing.
 	 */
 	getPlayingSounds() {
