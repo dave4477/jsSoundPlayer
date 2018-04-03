@@ -11,18 +11,17 @@ export default class SoundPlayer {
 	}
 	
 	/**
-	 * Loads sounds from an array of urls.
+	 * Loads sounds from an array of URLs.
 	 */
-	loadSounds(sounds) {
-		
+	loadSounds(sounds) {	
 		return new Promise((resolve, reject) => {		
 			this.loader.loadSounds(sounds).then((result) => {
-				let numSounds = Object.keys(result).length;
-				let decoded = 0;
+				var numSounds = Object.keys(result).length;
+				var decoded = 0;
 				Object.keys(result).forEach(loadedSound => {
 					this.context.decodeAudioData(result[loadedSound], buffer => {
 						if (buffer) {
-							let snd = new Sound(loadedSound, buffer, this.context, this.masterGain);
+							var snd = new Sound(loadedSound, buffer, this.context, this.masterGain);
 							this.sounds[snd.id] = snd;
 							decoded ++;
 							if (decoded === numSounds) {
@@ -35,12 +34,10 @@ export default class SoundPlayer {
 				console.warn("There was an error loading one or more sounds:", error);
 			});
 		});
-
 	}
 
-
 	/**
-	 * Returns the context if webaudio is supported.
+	 * Returns the context if webAudio is supported.
 	 */
 	get isWebAudioSupported() {
 		try {
@@ -48,14 +45,12 @@ export default class SoundPlayer {
 			this.context = new AudioContext();
 
 		} catch(e) {
+			console.warn("WebAudio is not supported");
 			this.context = null;
 		}
 		return this.context;
 	}
 	
-	
-	
-
 	/**
 	 * Will start playing the sound requested by id.
 	 * If the sound was already loaded, we play it from cache if autoStart is true,
@@ -76,46 +71,17 @@ export default class SoundPlayer {
 		if (this.sounds[id]) {
 			this.sounds[id].loop = this.sounds[id].sourceNode.loop = loop;
 			this.sounds[id].volume = volume;
+			this.sounds[id].autoStart = autoStart;
 
 			if (autoStart) {
 				this.sounds[id].play();
 			}
 			return;
-		}
-		// The sound was not loaded before, so we throw a warning.
-		console.warn("[AudioService] The sound " +id+ " was not loaded.");
-	};
-
-	/**
-	 * Callback from the componentService. This will decode the loaded buffer.
-	 * @function onLoaded
-	 * @param {string} id The id of the sound.
-	 * @param {ArrayBuffer} response The loaded arraybuffer.
-	 * @param {AudioElement} htmlAudio This is only used for browsers that do not support WebAudio.
-	 */
-	onLoaded(id, response, htmlAudio) {
-		var snd;
-		if (!htmlAudio) {
-			_context.decodeAudioData(response, function (buffer) {
-				if (buffer) {
-					snd = new Sound(id, buffer, _context, _masterGain);
-					this.sounds[snd.id] = snd;
-				}
-			});
 		} else {
-			htmlAudio.loop = false;
-			snd = new Sound(id, htmlAudio, _context, _masterGain);
-			this.sounds[snd.id] = snd;
+			this.loadSounds([id]).then((result) => {
+				this.playSound(id, loop, volume, autoStart);
+			});
 		}
-	};
-
-	/**
-	 * @module AudioService
-	 * @function isMuted
-	 * @returns {boolean} Returns true when the sound is muted, otherwise true.
-	 */
-	isMuted() {
-		return _isMuted;
 	};
 
 	/**
@@ -135,7 +101,7 @@ export default class SoundPlayer {
 	 * @method toggleSound
 	 */
 	toggleSound() {
-		if (_isMuted) {
+		if (this.isMuted) {
 			this.unmute();
 		} else {
 			this.mute();
@@ -207,5 +173,4 @@ export default class SoundPlayer {
 		});
 		return playingSounds;
 	};
-
 }

@@ -1,5 +1,8 @@
-//import SoundPlayer from './SoundPlayer.js';
-
+/**
+ * The Loader class is responsible for loading audio files.
+ * Once all audio files are loaded we fulfill the promise
+ * which is returned to the soundPlayer.
+ */
 export default class Loader {
 	constructor(context) {
 		this.isWebAudioSupported = context;
@@ -50,6 +53,7 @@ export default class Loader {
 		this.sounds[url] = request.response;
 		if (Object.keys(this.sounds).length === this.numSounds) {
 			resolve(this.sounds);
+			this.sounds = {};
 		}
 	}
 	
