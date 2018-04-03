@@ -36,6 +36,10 @@ export default class SoundPlayer {
 								resolve(this.sounds);
 							}
 						}
+					}, (error) => {
+						// Give a warning, but still continue to decode the rest.
+						console.warn("Error decoding audio file " +loadedSound+ ". Is this a valid audio file?");
+						decoded ++;
 					});
 				});	
 			}, (error) => {
