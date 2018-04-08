@@ -172,7 +172,7 @@ export default class SoundPlayer {
 	 */
 	getPlayingSounds() {
 		var playingSounds = [];
-		Object.keys(this.sounds).forEach(function(key){
+		Object.keys(this.sounds).forEach((key) =>{
 			if (this.sounds[key].isPlaying) {
 				playingSounds.push(this.sounds[key]);
 			}

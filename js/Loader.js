@@ -23,30 +23,33 @@ export default class Loader {
 		});
 	}
 
-	loadSound(url, resolve, reject) {		
-		if (!this.isWebAudioSupported) {
-			var audio = new Audio(url);
-			audio.addEventListener('canplaythrough', function () {
-				soundLoaded(url, audio);
-			});
-			audio.addEventListener('error', function soundLoadError(){
-				audio.removeEventListener('error', soundLoadError);
-				this.throwLoadError(url);
-			});
-		} else {
-			var request = new XMLHttpRequest();
-			request.open("GET", url, true);
-			request.responseType = "arraybuffer";
-			request.onreadystatechange = ((request) => {
-				if (request.readyState === XMLHttpRequest.DONE) {
-					if (request.status !== Loader.HTTP_STATUS_OK) {
-						this.throwLoadError(url);
-					}
-					this.soundLoaded(url, request, resolve);
-				}
-			}).bind(undefined, request);
-			request.send();
+	loadSound(url, resolve, reject) {	
+		/*
+		let audio = new Audio();
+		audio.src = url;
+		audio.controls = true;
+		audio.onload = (e) => {
+			this.soundLoaded(url, request, resolve);
 		}
+		audio.onerror = (e) => {
+			this.throwLoadError(url);
+			this.soundLoaded(url, request, resolve);
+		}
+		
+		document.body.appendChild(audio);
+		*/
+		var request = new XMLHttpRequest();
+		request.open("GET", url, true);
+		request.responseType = "arraybuffer";
+		request.onreadystatechange = ((request) => {
+			if (request.readyState === XMLHttpRequest.DONE) {
+				if (request.status !== Loader.HTTP_STATUS_OK) {
+					this.throwLoadError(url);
+				}
+				this.soundLoaded(url, request, resolve);
+			}
+		}).bind(undefined, request);
+		request.send();
 	}
 	
 	soundLoaded(url, request, resolve) {		

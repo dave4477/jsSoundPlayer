@@ -1,3 +1,5 @@
+import StringUtils from './utils/StringUtils.js';
+
 export default class Sound {
 
     /**
@@ -13,26 +15,76 @@ export default class Sound {
      * @constructor
      */
     constructor (url, buffer, audioctx, masterGain) {
-        this.context = audioctx;
+		this.context = audioctx;
         this.masterGain = masterGain;
-
         this.url = url;
-        this.id = url; 
-
-        if (!this.context) {
-            this.sourceNode = buffer;
-        } else {
-            this.sourceNode = this.context.createBufferSource();
-            this.sourceNode.buffer = buffer;
-            this.gainNode = this.context.createGain();
-            this.panner = this.context.createPanner();
-            this.panner.pannerModel = 'equalpower';
-            this.connectNodes.call(this);
-        }
+		this.id = url;
+		this.audio = document.createElement("audio");
+		this.audio.crossOrigin = "anonymous";
+		this.source = this.context.createMediaElementSource(this.audio);
+		
+		this.duration = 0;
+		this.currentTime = 0;
+		
+		this.createNodes(buffer);
+        
         this.loop = null;
         this.volume = null;
         this.sourceNode.loop = null;
         this.isPlaying = false;
+    }
+
+	createNodes(buffer) {
+		this.sourceNode = this.context.createBufferSource();
+		this.sourceNode.buffer = buffer;
+		this.gainNode = this.context.createGain();
+		this.panner = this.context.createPanner();
+		this.panner.pannerModel = 'equalpower';
+		this.analyser = this.context.createAnalyser();
+		this.analyser.fftSize = 256;
+		this.bufferLength = this.analyser.frequencyBinCount;
+		this.dataArray = new Float32Array(this.bufferLength);
+		this.connectNodes();
+	}
+    /**
+	 * Connect all mixer nodes to the sourceNode.
+	 */
+   // Connect all the nodes in the correct way
+    // (Note, source is created and connected later)
+    //
+    //                <source>
+    //                    |
+    //                    |_____________
+    //                    |             \
+    //                <preamp>          |
+    //                    |             | <-- Optional bypass
+    //           [...biquadFilters]     |
+    //                    |_____________/
+    //                    |
+    //    (split using createChannelSplitter)
+    //                    |
+    //                   / \
+    //                  /   \
+    //          <leftGain><rightGain>
+    //                  \   /
+    //                   \ /
+    //                    |
+    //     (merge using createChannelMerger)
+    //                    |
+    //               <chanMerge>
+    //                    |
+    //                    |\
+    //                    | <analyser>
+    //                  <gain>
+    //                    |
+    //              <destination>
+	 
+    connectNodes() {
+        this.sourceNode.connect(this.gainNode);
+        this.gainNode.connect(this.panner);
+		this.panner.connect(this.analyser);
+        this.analyser.connect(this.masterGain);
+        this.masterGain.connect(this.context.destination);
     }
 
     /**
@@ -52,17 +104,40 @@ export default class Sound {
             newSource.buffer = this.sourceNode.buffer;
             newSource.loop = this.sourceNode.loop;
             this.sourceNode = newSource;
-            this.connectNodes.call(this);
+            this.connectNodes();
             this.setVolume(this.volume);
             newSource.start();
         } else {
             this.sourceNode.play();
         }
         this.isPlaying = true;
-        console.log("[AudioService] playing " +this.id+ " from " +this.url);
-        this.sourceNode.addEventListener("ended", this.soundEnded.bind(this));
+        console.log("[AudioService] playing " +this.url);
+        this.sourceNode.addEventListener("ended", this.soundEnded.bind(this));		
     };
+	
+	updateTime(dt) {
+		//window.requestAnimationFrame(this.updateTime.bind(this));
 
+		this.currentTime = StringUtils.formatTime(this.context.currentTime);
+		this.duration = StringUtils.formatTime(this.sourceNode.buffer.duration);
+		this.analyser.getFloatFrequencyData(this.dataArray);
+	}
+	
+	getAnalyserData() {
+		return {
+			analyser: this.analyser,
+			dataArray: this.dataArray,
+			bufferLength: this.bufferLength
+		}
+	}
+	
+	getPosition() {
+		return {
+			currentTIme: this.currentTime,
+			totalTime: this.duration
+		}
+	}
+	
     /**
      * Stops a sound.
      * @function stop
@@ -75,16 +150,9 @@ export default class Sound {
             this.sourceNode.stop();
         }
         this.isPlaying = false;
-        console.log("[AudioService] stopping " +this.id+ " from "+this.url);
+        console.log("[AudioService] stopping " +this.url);
     };
 
-    // Connect all mixer nodes to the sourceNode.
-    connectNodes() {
-        this.sourceNode.connect(this.gainNode);
-        this.gainNode.connect(this.panner);
-        this.panner.connect(this.masterGain);
-        this.masterGain.connect(this.context.destination);
-    }
 
     /**
      * Pans the sound left / right. To pan left -1, to pan right 1, and center is 0.
@@ -107,6 +175,7 @@ export default class Sound {
     };
 
     soundEnded() {
+		this.currentTime = 0;
         if (!this.loop) {
             this.isPlaying = false;
         }
