@@ -83,7 +83,7 @@ export default class Sound {
         this.sourceNode.connect(this.gainNode);
         this.gainNode.connect(this.panner);
 		this.panner.connect(this.analyser);
-        this.analyser.connect(this.masterGain);
+		this.analyser.connect(this.masterGain);
         this.masterGain.connect(this.context.destination);
     }
 
@@ -115,13 +115,6 @@ export default class Sound {
         this.sourceNode.addEventListener("ended", this.soundEnded.bind(this));		
     };
 	
-	updateTime(dt) {
-		//window.requestAnimationFrame(this.updateTime.bind(this));
-
-		this.currentTime = StringUtils.formatTime(this.context.currentTime);
-		this.duration = StringUtils.formatTime(this.sourceNode.buffer.duration);
-		this.analyser.getFloatFrequencyData(this.dataArray);
-	}
 	
 	getAnalyserData() {
 		return {
@@ -133,8 +126,9 @@ export default class Sound {
 	
 	getPosition() {
 		return {
-			currentTIme: this.currentTime,
-			totalTime: this.duration
+			currentTime: this.context.currentTime % this.sourceNode.buffer.duration,
+			totalTime: this.sourceNode.buffer.duration,
+			percent: (Number(this.context.currentTime % this.sourceNode.buffer.duration) / Number(this.sourceNode.buffer.duration)) * 100
 		}
 	}
 	
@@ -175,9 +169,10 @@ export default class Sound {
     };
 
     soundEnded() {
+		console.log("sound ended!")
 		this.currentTime = 0;
         if (!this.loop) {
             this.isPlaying = false;
-        }
+        } 
     }
 };

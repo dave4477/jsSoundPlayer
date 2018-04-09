@@ -9,9 +9,9 @@ class Main {
 		global.soundPlayer = this.soundPlayer;
 		
 		// Pre-load some sounds.
-		this.soundPlayer.loadSounds(["./assets/sound1.mp3", "./assets/sound2.mp3"]).then((result) => {		
+		this.soundPlayer.loadSounds(["./assets/sound1.mp3"]).then((result) => {		
 		
-			// Play a sound without loading before hand. 
+			// Or play a sound without loading before hand. 
 			this.soundPlayer.playSound("./assets/sound1.mp3", true);		
 
 			// Log all loaded sounds to the console.
@@ -23,6 +23,3 @@ class Main {
 	}
 }
 var main = new Main(window);
-window.onload = function() { console.log("window loaded", main); 
-console.log(document.getElementsByTagName("canvas")[0]);
-}

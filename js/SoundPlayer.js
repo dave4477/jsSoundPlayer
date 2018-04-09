@@ -123,7 +123,7 @@ export default class SoundPlayer {
 			this.masterGain.gain.value = 0;
 		} else {
 			// IE11 fallback.
-			Object.keys(this.sounds).forEach(function(key){
+			Object.keys(this.sounds).forEach((key) =>{
 				this.sounds[key].sourceNode.pause();
 			});
 		}
@@ -139,7 +139,7 @@ export default class SoundPlayer {
 			this.masterGain.gain.value = 1;
 		} else {
 			// IE11 fallback.
-			Object.keys(this.sounds).forEach(function(key){
+			Object.keys(this.sounds).forEach((key) =>{
 				this.sounds[key].sourceNode.play();
 			});
 		}
