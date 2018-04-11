@@ -101,6 +101,12 @@ export default class SoundPlayer {
 			this.sounds[id].stop();
 		}
 	};
+	
+	pauseSound(id) {
+		if (this.sounds[id] && this.sounds[id].isPlaying) {
+			// implement pause.
+		}
+	}
 
 	/**
 	 * toggle sound to opposite of current state.

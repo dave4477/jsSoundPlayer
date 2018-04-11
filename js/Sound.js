@@ -18,11 +18,7 @@ export default class Sound {
 		this.context = audioctx;
         this.masterGain = masterGain;
         this.url = url;
-		this.id = url;
-		this.audio = document.createElement("audio");
-		this.audio.crossOrigin = "anonymous";
-		this.source = this.context.createMediaElementSource(this.audio);
-		
+		this.id = url;	
 		this.duration = 0;
 		this.currentTime = 0;
 		

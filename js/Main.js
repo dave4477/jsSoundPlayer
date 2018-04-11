@@ -18,7 +18,7 @@ class Main {
 			var allSounds = this.soundPlayer.getAllSounds();
 			console.log(allSounds);
 			
-			this.view = new View(this.soundPlayer);
+			this.view = new View(this.soundPlayer, 480, 260);
 		});
 	}
 }
