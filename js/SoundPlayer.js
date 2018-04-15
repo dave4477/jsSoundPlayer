@@ -103,9 +103,15 @@ export default class SoundPlayer {
 	};
 	
 	pauseSound(id) {
-		if (this.sounds[id] && this.sounds[id].isPlaying) {
-			// implement pause.
+		if (this.sounds[id] && this.sounds[id].context.state === 'running') {
+			this.sounds[id].pause();
 		}
+	}
+	
+	resumeSound(id) {
+		if (this.sounds[id] && this.sounds[id].context.state === 'suspended') {
+			this.sounds[id].resume();
+		}		
 	}
 
 	/**

@@ -7,6 +7,8 @@ export default class LineSpectrum extends AbstractSpectrum {
 	
 	draw() {
 		super.draw();
+		this.data.analyser.fftSize = 256;
+		
 		this.context.lineWidth = 2;
 		this.context.strokeStyle = 'rgb(255, 255, 255)';
 		this.context.beginPath();			

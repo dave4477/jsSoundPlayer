@@ -19,11 +19,15 @@ export default class Sound {
         this.masterGain = masterGain;
         this.url = url;
 		this.id = url;	
-		this.duration = 0;
-		this.currentTime = 0;
+		this.timeOffset = 0;
+
+		this.audio = document.createElement("audio");
+		this.audio.controls = true;
+		this.mediaElement = this.context.createMediaElementSource(this.audio);
+		document.body.appendChild(this.audio);
 		
 		this.createNodes(buffer);
-        
+		
         this.loop = null;
         this.volume = null;
         this.sourceNode.loop = null;
@@ -80,6 +84,7 @@ export default class Sound {
         this.gainNode.connect(this.panner);
 		this.panner.connect(this.analyser);
 		this.analyser.connect(this.masterGain);
+		this.mediaElement.connect(this.masterGain);
         this.masterGain.connect(this.context.destination);
     }
 
@@ -91,23 +96,25 @@ export default class Sound {
      * @module AudioService
      * @function play
      */
-    play() {
+    play(offset = 0) {
         if (this.isMuted) {
             return;
         }
         if (this.context) {
+			
             var newSource = this.context.createBufferSource();
             newSource.buffer = this.sourceNode.buffer;
             newSource.loop = this.sourceNode.loop;
             this.sourceNode = newSource;
             this.connectNodes();
             this.setVolume(this.volume);
-            newSource.start();
+			this.timeOffset = offset;
+            newSource.start(0, offset, this.sourceNode.buffer.duration - offset);
         } else {
             this.sourceNode.play();
         }
         this.isPlaying = true;
-        console.log("[AudioService] playing " +this.url);
+        console.log("[Sound] playing " +this.url, this.context.currentTime);
         this.sourceNode.addEventListener("ended", this.soundEnded.bind(this));		
     };
 	
@@ -115,19 +122,27 @@ export default class Sound {
 	getAnalyserData() {
 		return {
 			analyser: this.analyser,
-			dataArray: this.dataArray,
-			bufferLength: this.bufferLength
+			dataArray: new Float32Array(this.analyser.frequencyBinCount), 
+			bufferLength: this.analyser.frequencyBinCount 
 		}
 	}
 	
 	getPosition() {
 		return {
-			currentTime: this.context.currentTime % this.sourceNode.buffer.duration,
+			currentTime: (this.context.currentTime + this.timeOffset) % this.sourceNode.buffer.duration,
 			totalTime: this.sourceNode.buffer.duration,
-			percent: (Number(this.context.currentTime % this.sourceNode.buffer.duration) / Number(this.sourceNode.buffer.duration)) * 100
+			percent: (Number((this.context.currentTime + this.timeOffset) % this.sourceNode.buffer.duration) / Number(this.sourceNode.buffer.duration)) * 100
 		}
 	}
 	
+	setPositionInSeconds(value) {
+		this.sourceNode.currentTime = value;
+	}
+	setPositionInPercent(value) {
+		let newPos = (this.sourceNode.buffer.duration * value) / 100;
+		this.stop();
+
+	}
     /**
      * Stops a sound.
      * @function stop
@@ -140,10 +155,22 @@ export default class Sound {
             this.sourceNode.stop();
         }
         this.isPlaying = false;
-        console.log("[AudioService] stopping " +this.url);
+        console.log("[Sound] stopping " +this.url);
     };
 
-
+	pause() {
+		if (this.context.state === 'running') {
+			this.context.suspend();
+		}
+	}
+	
+	resume() {
+		if (this.context.state === 'suspended') {
+			this.context.resume();
+		}		
+	}
+	
+	
     /**
      * Pans the sound left / right. To pan left -1, to pan right 1, and center is 0.
      * @function setPanner
@@ -166,7 +193,6 @@ export default class Sound {
 
     soundEnded() {
 		console.log("sound ended!")
-		this.currentTime = 0;
         if (!this.loop) {
             this.isPlaying = false;
         } 

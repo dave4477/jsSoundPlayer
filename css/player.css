@@ -1,0 +1,48 @@
+.audioControls {
+	padding:4px;
+}
+
+.audioControls .playPause {
+	margin-left :10px;
+}
+
+.slidecontainer {
+	position:relative;
+	display:inline-block;
+	float:left;
+	margin-top:6px;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+	height: 5px;
+    border-radius: 5px;   
+    background: #d3d3d3;
+    outline: none;
+    opacity: 0.7;
+    -webkit-transition: .2s;
+    transition: opacity .2s;
+}
+
+.slider:hover {
+    opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;   
+    background: #ff0000;
+    cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;   
+    background: #ff0000;
+    cursor: pointer;
+}
