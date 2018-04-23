@@ -9,10 +9,11 @@ export default class SineSpectrum extends AbstractSpectrum {
 	draw() {
 		super.draw();
 
+		const MAX = 2;
 		const WIDTH = this.canvas.width;
 		const HEIGHT = this.canvas.height;
 		
-		this.data.analyser.fftSize = 2048;
+		this.data.analyser.fftSize = 1024;
 		let bufferLength = this.data.analyser.fftSize;
 
 		let dataArray = new Uint8Array(bufferLength);
@@ -28,7 +29,13 @@ export default class SineSpectrum extends AbstractSpectrum {
 
 		for(var i = 0; i < bufferLength; i++) {
 			var v = dataArray[i] / 128.0;
-			var y = v * HEIGHT / 2;
+			if (v > MAX) {
+				v = MAX;
+			}
+			v *= -1;
+			v += 1;
+			v *= 40;
+			var y = (HEIGHT / 2) + v; 
 
 			if(i === 0) {
 				this.context.moveTo(x, y);

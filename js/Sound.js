@@ -16,16 +16,13 @@ export default class Sound {
      */
     constructor (url, buffer, audioctx, masterGain) {
 		this.context = audioctx;
+		this.contextCreatedAt = new Date();
         this.masterGain = masterGain;
         this.url = url;
 		this.id = url;	
 		this.timeOffset = 0;
+		this.contextCreatedAt = new Date();
 
-		this.audio = document.createElement("audio");
-		this.audio.controls = true;
-		this.mediaElement = this.context.createMediaElementSource(this.audio);
-		document.body.appendChild(this.audio);
-		
 		this.createNodes(buffer);
 		
         this.loop = null;
@@ -37,11 +34,42 @@ export default class Sound {
 	createNodes(buffer) {
 		this.sourceNode = this.context.createBufferSource();
 		this.sourceNode.buffer = buffer;
+		this.splitter = this.context.createChannelSplitter(2);
+		this.leftGain = this.context.createGain();
+		this.rightGain = this.context.createGain();
+		this.merger = this.context.createChannelMerger(2);
 		this.gainNode = this.context.createGain();
 		this.panner = this.context.createPanner();
 		this.panner.pannerModel = 'equalpower';
+		
+		this.lowShelf = this.context.createBiquadFilter();
+		this.lowShelf.type = "lowshelf";
+		this.lowShelf.frequency.value = 440;
+		this.lowShelf.gain.value = 1;
+		
+		this.midShelf = this.context.createBiquadFilter();
+		this.midShelf.type = "peaking";
+		this.midShelf.frequency.value = 1000;
+		this.midShelf.gain.value = 1;
+		this.midShelf.Q.value = 0.5;
+		
+		this.highShelf = this.context.createBiquadFilter();
+		this.highShelf.type = "highshelf";
+		this.highShelf.frequency.value = 3200;
+		this.highShelf.gain.value = 1;
+		
 		this.analyser = this.context.createAnalyser();
 		this.analyser.fftSize = 256;
+		this.analyser.smoothingTimeConstant = 0.8;
+		
+		this.scriptNode = this.context.createScriptProcessor(2048, 1, 1);
+		this.scriptNode.onaudioprocess = () => {
+
+			// get the average for the first channel
+			var array = new Uint8Array(this.analyser.frequencyBinCount);
+			this.analyser.getByteFrequencyData(array);
+
+		}
 		this.bufferLength = this.analyser.frequencyBinCount;
 		this.dataArray = new Float32Array(this.bufferLength);
 		this.connectNodes();
@@ -80,20 +108,23 @@ export default class Sound {
     //              <destination>
 	 
     connectNodes() {
-        this.sourceNode.connect(this.gainNode);
-        this.gainNode.connect(this.panner);
+		this.scriptNode.connect(this.context.destination);
+        this.sourceNode.connect(this.gainNode);		
+		this.gainNode.connect(this.lowShelf);
+		this.lowShelf.connect(this.midShelf);
+		this.midShelf.connect(this.highShelf);
+		this.highShelf.connect(this.panner);
 		this.panner.connect(this.analyser);
 		this.analyser.connect(this.masterGain);
-		this.mediaElement.connect(this.masterGain);
-        this.masterGain.connect(this.context.destination);
+        this.masterGain.connect(this.context.destination);	
     }
-
+		
     /**
      * Re-Plays the sound for webAudio by copying the old buffer into the new one,
      * as a bufferSource can only be used once. Connect to gain nodes for volume,
      * and plays the sound. Should only be used through the the _public object.
      *
-     * @module AudioService
+     * @module Sound
      * @function play
      */
     play(offset = 0) {
@@ -101,7 +132,8 @@ export default class Sound {
             return;
         }
         if (this.context) {
-			
+			var audioLoadStart = this.contextCreatedAt;			
+			this.audioLoadOffset = (new Date() - audioLoadStart) / 1000;			
             var newSource = this.context.createBufferSource();
             newSource.buffer = this.sourceNode.buffer;
             newSource.loop = this.sourceNode.loop;
@@ -127,21 +159,27 @@ export default class Sound {
 		}
 	}
 	
+	getCurrentTime() {
+		return this.context.currentTime - this.audioLoadOffset + this.timeOffset;
+	}
+	
 	getPosition() {
 		return {
-			currentTime: (this.context.currentTime + this.timeOffset) % this.sourceNode.buffer.duration,
+			currentTime: this.getCurrentTime() % this.sourceNode.buffer.duration, 
 			totalTime: this.sourceNode.buffer.duration,
-			percent: (Number((this.context.currentTime + this.timeOffset) % this.sourceNode.buffer.duration) / Number(this.sourceNode.buffer.duration)) * 100
+			percent: (Number(this.getCurrentTime() % this.sourceNode.buffer.duration) / Number(this.sourceNode.buffer.duration)) * 100
 		}
 	}
 	
 	setPositionInSeconds(value) {
-		this.sourceNode.currentTime = value;
+		this.stop();
+		this.start(value);
 	}
+	
 	setPositionInPercent(value) {
 		let newPos = (this.sourceNode.buffer.duration * value) / 100;
 		this.stop();
-
+		this.play(newPos);
 	}
     /**
      * Stops a sound.
@@ -159,13 +197,16 @@ export default class Sound {
     };
 
 	pause() {
+		console.log("calling pause:", this.context.state);
 		if (this.context.state === 'running') {
 			this.context.suspend();
 		}
 	}
 	
 	resume() {
-		if (this.context.state === 'suspended') {
+		console.log("calling resume:", this.context.state);
+
+	if (this.context.state === 'suspended') {
 			this.context.resume();
 		}		
 	}
@@ -188,7 +229,7 @@ export default class Sound {
      * @param {Number} value A value between 0 (no sound) and x.
      */
     setVolume(value) {
-        this.gainNode.gain.value = value;
+        this.gainNode.gain.value = value / 10;
     };
 
     soundEnded() {

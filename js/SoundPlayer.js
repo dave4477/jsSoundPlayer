@@ -11,8 +11,10 @@ export default class SoundPlayer {
 	constructor() {
 		this.sounds = {};
 		this.context = this.isWebAudioSupported;
+		this.contextCreatedAt = new Date();
 		this.loader = new Loader(this.context);
 		this.masterGain = this.context.createGain();
+		this.masterGain.value = 0.5;
 		this.isMuted = false;
 	}
 	
@@ -31,6 +33,7 @@ export default class SoundPlayer {
 						if (buffer) {
 							var snd = new Sound(loadedSound, buffer, this.context, this.masterGain);
 							this.sounds[snd.id] = snd;
+							this.sounds[snd.id].contextCreatedAt = this.contextCreatedAt;
 							decoded ++;
 							if (decoded === numSounds) {
 								resolve(this.sounds);

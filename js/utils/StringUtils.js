@@ -11,4 +11,9 @@ export default class StringUtils {
 		if (sec < 10) { sec = "0"+sec; }
 		return hrs+':'+min+':'+sec;				
 	}
+	
+	static getFileExtension(fileName) {
+		const matches = /\.([a-z]{3,4})$/i.exec(fileName);
+		return matches ? matches[1].toLowerCase() : null;
+	};
 }

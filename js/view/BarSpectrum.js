@@ -11,8 +11,9 @@ export default class BarSpectrum extends AbstractSpectrum {
 
 		this.data.analyser.fftSize = 256;
 
-		const barWidth = (this.canvas.width / this.data.bufferLength) * 2.5;
+		const barWidth = (this.canvas.width / this.data.bufferLength) * 2;
 		let posX = 0;
+
 		for (let i = 0; i < this.data.bufferLength; i++) {
 			const barHeight = (this.data.dataArray[i] + 140) * 2;
 			this.context.fillStyle = 'rgb(' + Math.floor(barHeight + 100) + ', 50, 50)';

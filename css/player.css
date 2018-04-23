@@ -1,6 +1,10 @@
 .audioControls {
 	padding:4px;
 }
+.visualContainer {
+	position:relative;
+	background:#000;
+}
 
 .audioControls .playPause {
 	margin-left :10px;
@@ -45,4 +49,8 @@
     border-radius: 50%;   
     background: #ff0000;
     cursor: pointer;
+}
+
+.bandFilter {
+	transform: rotate(270deg);	
 }
