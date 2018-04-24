@@ -1,20 +1,26 @@
 export default class BandControls {
-	constructor(container, barWidth = 40) {
+	constructor(barWidth = 40, player) {
 		this.barWidth = barWidth;
+		this.sound = player.getPlayingSounds()[0];
 		this.sliders = {};
-
-		this.lBand = this.createFilterSlider("lBand", [-25,25]);
-		this.mBand = this.createFilterSlider("mBand", [-25,25]);
-		this.hBand = this.createFilterSlider("hBand", [-25,25]);
+		this.containers = [];
+		this.mainContainer = document.createElement("div");
+		this.mainContainer.className = "bandFilters";
+		
+		var bandFilters = player.getPlayingSounds()[0].bandFilters;
+		for (let i = 0; i < bandFilters.length; i++) {
+			this.containers.push(this.createFilterSlider("band-" +i, [-25,25], i));
+			this.mainContainer.appendChild(this.containers[i]);
+		}
 		this.isDragging = false;
 	}
 		
-	createFilterSlider(id, arrRange) {
+	createFilterSlider(id, arrRange, index) {
 		
 		const slideContainer = document.createElement("div");
 		slideContainer.className = "slideContainer bandFilter";
 		slideContainer.style.width = this.barWidth +"px";
-		slideContainer.display = "inline-block";
+		slideContainer.display = "flex";
 		slideContainer.onmousedown = () => {
 			this.isDragging = true;
 		}
@@ -29,6 +35,9 @@ export default class BandControls {
 		this.sliders[id].value = 1;
 		this.sliders[id].className = "slider";
 		this.sliders[id].id = id;
+		this.sliders[id].onchange = (e) => {
+			this.sound.bandFilters[index].gain.value = e.target.value;
+		}
 		slideContainer.appendChild(this.sliders[id]);
 				
 		return slideContainer;

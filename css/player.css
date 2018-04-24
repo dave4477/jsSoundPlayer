@@ -36,21 +36,42 @@
 .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 10px;
-    height: 10px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;   
     background: #ff0000;
     cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
-    width: 10px;
-    height: 10px;
+    width: 7px;
+    height: 7px;
     border-radius: 50%;   
     background: #ff0000;
     cursor: pointer;
 }
 
+.bandFilters {
+	position:relative;
+	top:40px;
+	width:450px;
+	height:20px;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+  
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
+	display: -webkit-flex;
+	display: flex;
+  
+	-webkit-flex-flow: row wrap;
+	justify-content: space-around;	
+}
+
 .bandFilter {
 	transform: rotate(270deg);	
+	margin:0px;
+	padding:0px;	
 }

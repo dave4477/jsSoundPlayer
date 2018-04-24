@@ -21,10 +21,7 @@ export default class View {
 		
 		this.spectrums = [];
 		this.spectrums.push(new LineSpectrum(this.canvas, this.canvasContext, this.player));
-
 		this.spectrums.push(new Experiment(this.canvas, this.canvasContext, this.player));
-		
-		
 		this.spectrums.push(new BarSpectrum(this.canvas, this.canvasContext, this.player));
 		this.spectrums.push(new FullSpectrum(this.canvas, this.canvasContext, this.player));
 		this.spectrums.push(new CircleSpectrum(this.canvas, this.canvasContext, this.player));

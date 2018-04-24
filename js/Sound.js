@@ -35,29 +35,24 @@ export default class Sound {
 		this.sourceNode = this.context.createBufferSource();
 		this.sourceNode.buffer = buffer;
 		this.splitter = this.context.createChannelSplitter(2);
-		this.leftGain = this.context.createGain();
-		this.rightGain = this.context.createGain();
 		this.merger = this.context.createChannelMerger(2);
 		this.gainNode = this.context.createGain();
 		this.panner = this.context.createPanner();
 		this.panner.pannerModel = 'equalpower';
 		
-		this.lowShelf = this.context.createBiquadFilter();
-		this.lowShelf.type = "lowshelf";
-		this.lowShelf.frequency.value = 440;
-		this.lowShelf.gain.value = 1;
-		
-		this.midShelf = this.context.createBiquadFilter();
-		this.midShelf.type = "peaking";
-		this.midShelf.frequency.value = 1000;
-		this.midShelf.gain.value = 1;
-		this.midShelf.Q.value = 0.5;
-		
-		this.highShelf = this.context.createBiquadFilter();
-		this.highShelf.type = "highshelf";
-		this.highShelf.frequency.value = 3200;
-		this.highShelf.gain.value = 1;
-		
+		this.bandFilters = [];
+		this.bandFilters.push(this.createBiquadFilterNode("lowshelf", 60)); 	
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 170));
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 310));
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 600));
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 1000));
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 3000));
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 6000));
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 12000));
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 14000));
+		this.bandFilters.push(this.createBiquadFilterNode("peaking", 16000));
+		//this.bandFilters.push(this.createBiquadFilterNode("highshelf", 32000));
+				
 		this.analyser = this.context.createAnalyser();
 		this.analyser.fftSize = 256;
 		this.analyser.smoothingTimeConstant = 0.8;
@@ -74,51 +69,41 @@ export default class Sound {
 		this.dataArray = new Float32Array(this.bufferLength);
 		this.connectNodes();
 	}
+	
+	/**
+	 * Used for equalizer effects.
+	 */
+	createBiquadFilterNode(type, frequency) {
+		let biquadFilter = this.context.createBiquadFilter();
+		biquadFilter.type = type;
+		biquadFilter.frequency.value = frequency;
+		biquadFilter.Q.value = 1;
+		biquadFilter.gain.value = 0;
+		return biquadFilter;
+	}
     /**
 	 * Connect all mixer nodes to the sourceNode.
-	 */
-   // Connect all the nodes in the correct way
-    // (Note, source is created and connected later)
-    //
-    //                <source>
-    //                    |
-    //                    |_____________
-    //                    |             \
-    //                <preamp>          |
-    //                    |             | <-- Optional bypass
-    //           [...biquadFilters]     |
-    //                    |_____________/
-    //                    |
-    //    (split using createChannelSplitter)
-    //                    |
-    //                   / \
-    //                  /   \
-    //          <leftGain><rightGain>
-    //                  \   /
-    //                   \ /
-    //                    |
-    //     (merge using createChannelMerger)
-    //                    |
-    //               <chanMerge>
-    //                    |
-    //                    |\
-    //                    | <analyser>
-    //                  <gain>
-    //                    |
-    //              <destination>
-	 
+	 */ 
     connectNodes() {
 		this.scriptNode.connect(this.context.destination);
         this.sourceNode.connect(this.gainNode);		
-		this.gainNode.connect(this.lowShelf);
-		this.lowShelf.connect(this.midShelf);
-		this.midShelf.connect(this.highShelf);
-		this.highShelf.connect(this.panner);
+		
+		this.equalizerNodes = this.connectFilters(this.gainNode);
+		
+		this.equalizerNodes.connect(this.panner);
 		this.panner.connect(this.analyser);
 		this.analyser.connect(this.masterGain);
         this.masterGain.connect(this.context.destination);	
     }
+	
+	connectFilters(node) {
+		return this.bandFilters.reduce(this.filterConnecter, this.gainNode);
+	}
 		
+	filterConnecter(prevNode, currentNode) {
+		return prevNode.connect(currentNode);
+	}
+	
     /**
      * Re-Plays the sound for webAudio by copying the old buffer into the new one,
      * as a bufferSource can only be used once. Connect to gain nodes for volume,
@@ -229,7 +214,7 @@ export default class Sound {
      * @param {Number} value A value between 0 (no sound) and x.
      */
     setVolume(value) {
-        this.gainNode.gain.value = value / 10;
+        this.gainNode.gain.value = value / 4;
     };
 
     soundEnded() {

@@ -9,15 +9,11 @@ export default class AudioControls {
 		this.container = this.createControlContainer(); 
 		this.buttonPlayPause = this.createPlayPause();
 		this.scrubberControl = new ScrubberControl();
-		this.bandControls = new BandControls();
+		this.bandControls = new BandControls(40, player);
 		document.body.appendChild(this.container);
 		this.container.appendChild(this.buttonPlayPause);
-		this.container.appendChild(this.scrubberControl.createBar());
-		
-		this.container.appendChild(this.bandControls.lBand);
-		this.container.appendChild(this.bandControls.mBand);
-		this.container.appendChild(this.bandControls.hBand);
-		
+		this.container.appendChild(this.scrubberControl.createBar());	
+		this.container.appendChild(this.bandControls.mainContainer);
 	}
 	
 	createControlContainer() {
