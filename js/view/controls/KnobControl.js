@@ -31,7 +31,6 @@ export default class KnobControl {
 		
 		this.dial = document.createElement("div");
 		this.dial.className = "dial";
-		
 		dialContainer.appendChild(this.dial);
 		return dialContainer;
 	}
@@ -65,9 +64,6 @@ export default class KnobControl {
 	    return (value - r1[0]) * (r2[1] - r2[0]) / (r1[1] - r1[0]) + r2[0];	
 	}
 	
-	addLabel(txt, pos) {
-		
-	}
 	/**
 	 * @private
 	 * Returns the angle in radians.
@@ -98,8 +94,45 @@ export default class KnobControl {
 	}
 	
 	mouseDown(e) {
+		document.body.onselectstart = () => { return false; }		
+		this.isDragging = true;
 		this.previousAngle = this.getAngle(e);
 		this.previousValue = this.value;
+	}
+
+	mouseMove(e) {
+		if (this.isDragging) {
+			const rad = this.getAngle(e);
+			const deg = this.getDegrees(rad);
+			
+			const newAngle = rad;
+			const oldAngle = this.previousAngle;
+			this.previousAngle = newAngle;
+
+			let deltaAngle = newAngle - oldAngle;
+			if (deltaAngle < 0) {
+				// Because this is a circle
+				deltaAngle += Math.PI * 2;
+			}
+			if (deltaAngle > Math.PI) {
+				// Converting from 0..360 to -180..180.
+				deltaAngle -= Math.PI * 2;
+			}
+
+			const deltaValue = deltaAngle / Math.PI / 2;
+			const newProposedValue = this.value + deltaValue;
+			this.value = newProposedValue;
+			
+			this.updateValue();
+			
+			this.scaledValue = this.convertRange( this.value, [ this.min, this.max ], [ this.minRange, this.maxRange ] );
+			this.dial.style.transform = "rotate(" +this.value * 360+ "deg)";
+			this.dial.dispatchEvent(new Event('change'));
+		}
+	}
+			
+	mouseUp() {
+		this.isDragging = false;
 	}
 	
 	updateValue() {
@@ -121,48 +154,11 @@ export default class KnobControl {
 	}
 	
 	addListeners() {
-		window.onmousedown = (e) => {
-			if (e.target === this.dial) {
-				document.body.onselectstart = () => { return false; }
-				this.isDragging = true;
-				this.mouseDown(e);
-			}			
-		}
-		
-		window.onmousemove = (e) => {
-			if (this.isDragging) {
-				const rad = this.getAngle(e);
-				const deg = this.getDegrees(rad);
-				
-				const newAngle = rad;
-				const oldAngle = this.previousAngle;
-				this.previousAngle = newAngle;
-
-				let deltaAngle = newAngle - oldAngle;
-				if (deltaAngle < 0) {
-					// Because this is a circle
-					deltaAngle += Math.PI * 2;
-				}
-				if (deltaAngle > Math.PI) {
-					// Converting from 0..360 to -180..180.
-					deltaAngle -= Math.PI * 2;
-				}
-
-				const deltaValue = deltaAngle / Math.PI / 2;
-				const newProposedValue = this.value + deltaValue;
-				this.value = newProposedValue;
-				
-				this.updateValue();
-				
-				this.scaledValue = this.convertRange( this.value, [ this.min, this.max ], [ this.minRange, this.maxRange ] );
-				this.dial.style.transform = "rotate(" +this.value * 360+ "deg)";
-				this.dial.dispatchEvent(new Event('change'));
-			}
-		}
-		
-		window.onmouseup = (e) => {
-			this.isDragging = false;
-		}
+		this.mouseDownHandler = e => this.mouseDown(e);
+		this.mouseMoveHandler = e => this.mouseMove(e);
+		this.mouseUpHandler = e => this.mouseUp(e);
+		this.dial.addEventListener('mousedown', this.mouseDownHandler); 
+		window.addEventListener('mousemove', this.mouseMoveHandler);
+		window.addEventListener('mouseup', this.mouseUpHandler);
 	}	
 }
-KnobControl.LABEL_POSITION_BOTTOM = "bottom";

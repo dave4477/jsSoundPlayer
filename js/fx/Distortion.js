@@ -2,7 +2,7 @@ export default class Distortion {
 	constructor() {
 	}
 	
-	createCurve(amount) { // function to make curve shape for distortion/wave shaper node to use
+	createCurve(amount) { 
 		var k = typeof amount === 'number' ? amount : 50,
 		n_samples = 44100,
 		curve = new Float32Array(n_samples),
@@ -11,7 +11,10 @@ export default class Distortion {
 		x;
 		for ( ; i < n_samples; ++i ) {
 			x = i * 2 / n_samples - 1;
-			curve[i] = ( 3 + k ) * x * 10 * deg / ( Math.PI + k * Math.abs(x) );
+			// Create sigmond function.
+			// (3+20)\cdot x\cdot57\cdot(3/180)/(3+20\cdot\left|x\right|)
+			curve[i] = ( 3 + k ) * x * 57 * deg / ( Math.PI + k * Math.abs(x) );
+
 		}
 		return curve;
 	}

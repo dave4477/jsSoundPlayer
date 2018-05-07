@@ -5,13 +5,13 @@ import PanningControl from './PanningControl.js';
 import BandControls from './BandControls.js';
 import ReverbControls from './ReverbControls.js';
 import DistortionControl from './DistortionControl.js';
+import Generic1DialControl from './Generic1DialControl.js';
 
 export default class AudioControls {
-	constructor(controlWidth, player) {
+	constructor(width, player) {
 		this.player = player;
 		this.sound = this.player.getPlayingSounds()[0];
-		this.width = controlWidth;
-		
+		this.width = width;
 		this.container = this.createControlContainer(); 
 		
 		this.buttonPlayPause = new PlayPauseControl(this.sound);
@@ -19,9 +19,9 @@ export default class AudioControls {
 		this.volumeControl = new VolumeControl(this.sound);
 		this.panningControl = new PanningControl(this.sound);
 		this.bandControls = new BandControls(this.sound);
-		this.reverbControls = new ReverbControls(this.sound);
-		this.distortionControl = new DistortionControl(this.sound);
-		
+		//this.reverbControls = new ReverbControls(this.sound);
+		this.reverbControls = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Reverb", effectToggle:"On", knobLabelBottom:"Level", callback:"setReverbLevel", valueMultiplier:0 });		
+		this.distortionControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Distortion", effectToggle:"Damage", knobLabelBottom:"Drive", callback:"setDistortionLevel", valueMultiplier:100 });				
 		document.body.appendChild(this.container);
 		
 		this.container.appendChild(this.buttonPlayPause.createControl());
@@ -29,7 +29,12 @@ export default class AudioControls {
 		this.container.appendChild(this.bandControls.createControl());
 		this.container.appendChild(this.volumeControl.createControl());
 		this.container.appendChild(this.panningControl.createControl());
-		this.container.appendChild(this.reverbControls.createControl());
+		
+		const clearDiv = document.createElement("div");
+		clearDiv.style.clear = "both";
+		this.container.appendChild(clearDiv);
+
+		this.container.appendChild(this.reverbControls.createControl());		
 		this.container.appendChild(this.distortionControl.createControl());
 	}
 	

@@ -12,22 +12,26 @@ export default class Sound {
      * @param {Boolean} loop Whether the sound should loop.
      * @param {Number} volume The playback volume of the sound (do we want to hurt peoples ears).
      * @param {Object} buffer The audioBuffer. This will be null for HTML5Audio fallback.
-     * @param {Object} audioctx The AudioContext if webaudio is supported.
-     * @param {Object} masterGain The masterGain from the AudioService for volume.
+     * @param {Object} playerSettings Settings, typically passed from the SoundPlayer: 
+	 *						@property {Object} context The AudioContext.
+	 *						@property {Object} masterGain The masterGain.
+	 *						@property {Object} masterAnalyser The analyser for all sounds.
+	 *						@property {Object} effects. Optional. The effects configuration if passed to the player.
      * @constructor
      */
-    constructor (url, buffer, audioctx, masterGain, effects) {
-		this.context = audioctx;
+    constructor (url, buffer, playerSettings) { 
+		this.context = playerSettings.context;
 		this.contextCreatedAt = new Date();
-        this.masterGain = masterGain;
+        this.masterGain = playerSettings.masterGain;
+		this.masterAnalyser = playerSettings.masterAnalyser;
         this.url = url;
 		this.id = url;	
-		this.effects = effects;
+		this.effects = playerSettings.effects;
 		this.timeOffset = 0;
 		this.contextCreatedAt = new Date();
 		this.isStream = url === "stream";
 		
-		if (effects && effects["reverbs"]) {
+		if (this.effects && this.effects["reverbs"]) {
 			this.loadReverbs();		
 		}
 		this.distortionShaper = new Distortion();

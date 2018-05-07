@@ -3,7 +3,6 @@ export default class ReverbControls {
 		this.reverbOnOff = null;
 		this.reverbSlider = null;
 		this.sound = sound;
-
 	}
 	
 	createControl() {
@@ -43,12 +42,12 @@ export default class ReverbControls {
 
 	addListeners() {
 		this.reverbOnOff.onchange = (e) => {
-		if (e.target.checked) {
-			this.sound.setReverbLevel(this.reverbSlider.value);
-		} else {
-			this.sound.setReverbLevel(0);
+			if (e.target.checked) {
+				this.sound.setReverbLevel(this.reverbSlider.value);
+			} else {
+				this.sound.setReverbLevel(0);
+			}
 		}
-	}
 		this.reverbSlider.onchange = (e) => {
 			if (this.reverbOnOff.checked) {
 				this.sound.setReverbLevel(e.target.value);

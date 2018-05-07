@@ -18,15 +18,22 @@ export default class SoundPlayer {
 		this.context = this.isWebAudioSupported;
 		this.contextCreatedAt = new Date();
 		this.loader = new Loader(this.context);
-		this.masterGain = this.context.createGain();
-		this.masterGain.value = 0.5;
+
+		const masterGain = this.context.createGain();
+		masterGain.value = 0.5;
+
+		const masterAnalyser = this.context.createAnalyser();
+		masterAnalyser.fftSize = 256;
+		masterAnalyser.smoothingTimeConstant = 0.8;
+		
+		this.playerSettings = {context:this.context, masterGain: masterGain, masterAnalyser:masterAnalyser, effects:this.config.effects};
 		this.isMuted = false;		
 	}
 
 	streamSoundInput(callback) {
 		this.soundInput.getUserMedia().then((result) => {
 			console.log("result:", result);
-			this.sounds["stream"] = new Sound("stream", result, this.context, this.masterGain, this.config.effects);
+			this.sounds["stream"] = new Sound("stream", result, this.playerSettings); 
 			callback(this.sounds["stream"]);
 		}, (error) => {
 			console.log("Error streaming user input:", error);
@@ -47,7 +54,7 @@ export default class SoundPlayer {
 				Object.keys(result).forEach(loadedSound => {
 					this.context.decodeAudioData(result[loadedSound], buffer => {
 						if (buffer) {
-							var snd = new Sound(loadedSound, buffer, this.context, this.masterGain, this.config.effects);
+							var snd = new Sound(loadedSound, buffer, this.playerSettings);
 							this.sounds[snd.id] = snd;
 							this.sounds[snd.id].contextCreatedAt = this.contextCreatedAt;
 							decoded ++;
@@ -162,12 +169,7 @@ export default class SoundPlayer {
 	 */
 	mute() {
 		if (this.context) {
-			this.masterGain.gain.value = 0;
-		} else {
-			// IE11 fallback.
-			Object.keys(this.sounds).forEach((key) =>{
-				this.sounds[key].sourceNode.pause();
-			});
+			this.playerSettings.masterGain.gain.value = 0;
 		}
 		this.isMuted = true;
 	};
@@ -178,12 +180,7 @@ export default class SoundPlayer {
 	 */
 	unmute() {
 		if (this.context) {
-			this.masterGain.gain.value = 1;
-		} else {
-			// IE11 fallback.
-			Object.keys(this.sounds).forEach((key) =>{
-				this.sounds[key].sourceNode.play();
-			});
+			this.playerSettings.masterGain.gain.value = 1;
 		}
 		this.isMuted = false;
 	};

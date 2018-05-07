@@ -10,19 +10,22 @@ export default class PlayPauseControl {
 		btn.className = "playPause";
 		
 		if (this.isPaused) {
-			btn.innerHTML = "Play";
+			btn.className = "playPause play";
+			//btn.innerHTML = "Play";
 		} else {
-			btn.innerHTML = "Pause";
+			btn.className = "playPause pause";
+			//btn.innerHTML = "Pause";
 		}
 		btn.onclick = () => {			
 			if (!this.isPaused) {
 				this.sound.pause();
 				this.isPaused = true;
-				btn.innerHTML = "Play";
+				btn.className = "playPause play";
 			} else {
 				this.sound.resume();
 				this.isPaused = false;
-				btn.innerHTML = "Pause";
+				btn.className = "playPause pause";
+
 
 			}
 		}
