@@ -24,20 +24,6 @@ export default class Loader {
 	}
 
 	loadSound(url, resolve, reject) {	
-		/*
-		let audio = new Audio();
-		audio.src = url;
-		audio.controls = true;
-		audio.onload = (e) => {
-			this.soundLoaded(url, request, resolve);
-		}
-		audio.onerror = (e) => {
-			this.throwLoadError(url);
-			this.soundLoaded(url, request, resolve);
-		}
-		
-		document.body.appendChild(audio);
-		*/
 		var request = new XMLHttpRequest();
 		request.open("GET", url, true);
 		request.responseType = "arraybuffer";

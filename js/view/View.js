@@ -1,16 +1,14 @@
 import Sound from './../Sound.js';
-import LineSpectrum from './LineSpectrum.js';
 
-import Experiment from './Experiment.js';
+import LineSpectrum from './spectrum/LineSpectrum.js';
+import Experiment from './spectrum/Experiment.js';
+import BarSpectrum from './spectrum/BarSpectrum.js';
+import FullSpectrum from './spectrum/FullSpectrum.js';
+import CircleSpectrum from './spectrum/CircleSpectrum.js';
+import SineSpectrum from './spectrum/SineSpectrum.js';
+import VolumeSpectrum from './spectrum/VolumeSpectrum.js';
 
-
-import BarSpectrum from './BarSpectrum.js';
-import FullSpectrum from './FullSpectrum.js';
-import CircleSpectrum from './CircleSpectrum.js';
-import SineSpectrum from './SineSpectrum.js';
-import VolumeSpectrum from './VolumeSpectrum.js';
-import AudioControls from './AudioControls.js';
-import ScrubberControl from './ScrubberControl.js';
+import AudioControls from './controls/AudioControls.js';
 
 
 export default class View {
@@ -21,7 +19,7 @@ export default class View {
 		
 		this.spectrums = [];
 		this.spectrums.push(new LineSpectrum(this.canvas, this.canvasContext, this.player));
-		this.spectrums.push(new Experiment(this.canvas, this.canvasContext, this.player));
+		//this.spectrums.push(new Experiment(this.canvas, this.canvasContext, this.player));
 		this.spectrums.push(new BarSpectrum(this.canvas, this.canvasContext, this.player));
 		this.spectrums.push(new FullSpectrum(this.canvas, this.canvasContext, this.player));
 		this.spectrums.push(new CircleSpectrum(this.canvas, this.canvasContext, this.player));
@@ -29,28 +27,8 @@ export default class View {
 		this.spectrums.push(new VolumeSpectrum(this.canvas, this.canvasContext, this.player));
 		
 		this.controls = new AudioControls(w, this.player);
-		this.controls.scrubberControl.slider.onchange = (e) => {
-			let snd = this.player.getPlayingSounds()[0];
-			snd.setPositionInPercent(e.target.value);
-		}
-		this.controls.bandControls.sliders["lBand"].onchange = (e) => {
-			let snd = this.player.getPlayingSounds()[0];
-			let ls = snd.lowShelf.gain;
-			ls.value = e.target.value;
-		}
-		this.controls.bandControls.sliders["mBand"].onchange = (e) => {
-			let snd = this.player.getPlayingSounds()[0];
-			let ms = snd.midShelf.gain;
-			ms.value = e.target.value;
-		}
-		this.controls.bandControls.sliders["hBand"].onchange = (e) => {
-			let snd = this.player.getPlayingSounds()[0];
-			let hs = snd.highShelf.gain;
-			hs.value = e.target.value;
-		}
-		
 	}
-	
+		
 	createCanvas(w, h) {
 		this.canvas = document.createElement('canvas');
 		this.canvas.style.top = 0;
@@ -86,7 +64,7 @@ export default class View {
 		this.spectrums[this.visualType].draw();
 		
 		let snd = (this.player.getPlayingSounds().length > 0) ? this.player.getPlayingSounds()[0] : null;
-		if (snd) {
+		if (snd && !snd.isStreaming && this.controls && this.controls.scrubberControl) {
 			this.controls.scrubberControl.setValue(snd.getPosition().percent);
 		}
 	}	

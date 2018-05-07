@@ -1,43 +1,59 @@
 import Loader from './Loader.js';
 import Sound from './Sound.js';
-
+import SoundInput from './SoundInput.js';
 /**
  * Main SoundPlayer class used for controlling sounds. 
+ * To control just 1 specific loaded, you can grab the Sound instance
+ * from here and control that sound through the Sound API.
+ * 
  * The SoundPlayer currently supports wav, mp3 and ogg format.
  * Additional functionality is volume control for each sound, panning
  * and some equalizer / FX.
  */
 export default class SoundPlayer {
-	constructor() {
+	constructor(config) {
+		this.config = JSON.parse(config);
+		this.soundInput = new SoundInput();
 		this.sounds = {};
 		this.context = this.isWebAudioSupported;
 		this.contextCreatedAt = new Date();
 		this.loader = new Loader(this.context);
 		this.masterGain = this.context.createGain();
 		this.masterGain.value = 0.5;
-		this.isMuted = false;
+		this.isMuted = false;		
 	}
-	
+
+	streamSoundInput(callback) {
+		this.soundInput.getUserMedia().then((result) => {
+			console.log("result:", result);
+			this.sounds["stream"] = new Sound("stream", result, this.context, this.masterGain, this.config.effects);
+			callback(this.sounds["stream"]);
+		}, (error) => {
+			console.log("Error streaming user input:", error);
+		});
+	}
 	/**
-	 * Loads sounds from an array of URLs.
+	 * Loads and decodes sounds from an array of URLs.
 	 * @param {Array} sounds. An array of urls to a soundfile.
-	 * @returns A promise which is resolved if all sounds are loaded, otherwise rejected.
+	 * @returns {Promise} A promise with all loaded objects of type Sound, 
+	 *					  once resolved ALL sounds are loaded and decoded. .
 	 */
 	loadSounds(sounds) {	
-		return new Promise((resolve, reject) => {		
+		return new Promise((resolve, reject) => {
 			this.loader.loadSounds(sounds).then((result) => {
 				var numSounds = Object.keys(result).length;
 				var decoded = 0;
+
 				Object.keys(result).forEach(loadedSound => {
 					this.context.decodeAudioData(result[loadedSound], buffer => {
 						if (buffer) {
-							var snd = new Sound(loadedSound, buffer, this.context, this.masterGain);
+							var snd = new Sound(loadedSound, buffer, this.context, this.masterGain, this.config.effects);
 							this.sounds[snd.id] = snd;
 							this.sounds[snd.id].contextCreatedAt = this.contextCreatedAt;
 							decoded ++;
 							if (decoded === numSounds) {
 								resolve(this.sounds);
-							}
+							}							
 						}
 					}, (error) => {
 						// Give a warning, but still continue to decode the rest.
@@ -50,6 +66,7 @@ export default class SoundPlayer {
 			});
 		});
 	}
+	
 
 	/**
 	 * Returns the context if webAudio is supported.
@@ -79,7 +96,7 @@ export default class SoundPlayer {
 	 */
 	playSound(id, loop = false, volume = 1, autoStart = true) {
 		if (this.sounds[id]) {
-			this.sounds[id].loop = this.sounds[id].sourceNode.loop = loop;
+			this.sounds[id].loop = loop; //this.sounds[id].sourceNode.loop = loop;
 			this.sounds[id].volume = volume;
 			this.sounds[id].autoStart = autoStart;
 
@@ -95,8 +112,8 @@ export default class SoundPlayer {
 	};
 
 	/**
-	 * Stops a loaded / playing sound.
-	 * @method stopSound
+	 * Stops a currently playing sound.
+	 * @method stopSound	
 	 * @param {string} id
 	 */
 	stopSound(id) {
@@ -105,12 +122,22 @@ export default class SoundPlayer {
 		}
 	};
 	
+	/**
+	 * Pauses a currently playing sound.
+	 * @method pauseSound	
+	 * @param {string} id the ID of the sound, typically it's URL.
+	 */
 	pauseSound(id) {
 		if (this.sounds[id] && this.sounds[id].context.state === 'running') {
 			this.sounds[id].pause();
 		}
 	}
-	
+
+	/**
+	 * Resumes a currently paused sound, starting at the position it was paused at.
+	 * @method resumeSound	
+	 * @param {string} id the ID of the sound, typically it's URL.
+	 */	
 	resumeSound(id) {
 		if (this.sounds[id] && this.sounds[id].context.state === 'suspended') {
 			this.sounds[id].resume();

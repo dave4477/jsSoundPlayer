@@ -1,4 +1,6 @@
 import StringUtils from './utils/StringUtils.js';
+import Reverb from './fx/Reverb.js';
+import Distortion from './fx/Distortion.js';
 
 export default class Sound {
 
@@ -14,29 +16,55 @@ export default class Sound {
      * @param {Object} masterGain The masterGain from the AudioService for volume.
      * @constructor
      */
-    constructor (url, buffer, audioctx, masterGain) {
+    constructor (url, buffer, audioctx, masterGain, effects) {
 		this.context = audioctx;
 		this.contextCreatedAt = new Date();
         this.masterGain = masterGain;
         this.url = url;
 		this.id = url;	
+		this.effects = effects;
 		this.timeOffset = 0;
 		this.contextCreatedAt = new Date();
-
+		this.isStream = url === "stream";
+		
+		if (effects && effects["reverbs"]) {
+			this.loadReverbs();		
+		}
+		this.distortionShaper = new Distortion();
+		
 		this.createNodes(buffer);
 		
-        this.loop = null;
+		this.loop = null;
         this.volume = null;
-        this.sourceNode.loop = null;
-        this.isPlaying = false;
+        this.isPlaying = this.isStream; 
     }
 
+	async loadReverbs() {
+		this.reverbClass = new Reverb(this.context, this.effects["reverbs"]);
+		this.reverbImpulses = await this.reverbClass.loadImpulse(); 
+		let active = this.reverbClass.getActiveReverb();
+		this.reverb.buffer = this.reverbClass.getActiveReverb().buffer;
+	}
+	
+	setReverbType(index) {
+		this.reverb.buffer = this.reverbClass.getReverbs()[index].buffer;
+	}
+	
 	createNodes(buffer) {
-		this.sourceNode = this.context.createBufferSource();
-		this.sourceNode.buffer = buffer;
-		this.splitter = this.context.createChannelSplitter(2);
-		this.merger = this.context.createChannelMerger(2);
+		if (!this.isStream) {
+			this.sourceNode = this.context.createBufferSource();
+			this.sourceNode.buffer = buffer;
+		} else {
+			this.sourceNode = this.context.createMediaStreamSource(buffer);
+		}
+		
 		this.gainNode = this.context.createGain();
+
+		this.reverbGain = this.context.createGain();
+		this.reverb = this.context.createConvolver();
+		
+		this.distortion = this.context.createWaveShaper();
+		
 		this.panner = this.context.createPanner();
 		this.panner.pannerModel = 'equalpower';
 		
@@ -51,18 +79,23 @@ export default class Sound {
 		this.bandFilters.push(this.createBiquadFilterNode("peaking", 12000));
 		this.bandFilters.push(this.createBiquadFilterNode("peaking", 14000));
 		this.bandFilters.push(this.createBiquadFilterNode("peaking", 16000));
-		//this.bandFilters.push(this.createBiquadFilterNode("highshelf", 32000));
 				
 		this.analyser = this.context.createAnalyser();
 		this.analyser.fftSize = 256;
 		this.analyser.smoothingTimeConstant = 0.8;
 		
+		this.masterCompression = this.context.createDynamicsCompressor();
+		
 		this.scriptNode = this.context.createScriptProcessor(2048, 1, 1);
 		this.scriptNode.onaudioprocess = () => {
-
 			// get the average for the first channel
 			var array = new Uint8Array(this.analyser.frequencyBinCount);
 			this.analyser.getByteFrequencyData(array);
+			if (!this.isStream) {
+				if (this.getCurrentTime() >= this.sourceNode.buffer.duration && this.loop) {
+					this.setPositionInSeconds(0);
+				}
+			}
 
 		}
 		this.bufferLength = this.analyser.frequencyBinCount;
@@ -76,11 +109,12 @@ export default class Sound {
 	createBiquadFilterNode(type, frequency) {
 		let biquadFilter = this.context.createBiquadFilter();
 		biquadFilter.type = type;
-		biquadFilter.frequency.value = frequency;
-		biquadFilter.Q.value = 1;
-		biquadFilter.gain.value = 0;
+		biquadFilter.frequency.setValueAtTime(frequency, 0);
+		biquadFilter.Q.setValueAtTime(1, 0);
+		biquadFilter.gain.setValueAtTime(0, 0);
 		return biquadFilter;
 	}
+	
     /**
 	 * Connect all mixer nodes to the sourceNode.
 	 */ 
@@ -88,16 +122,25 @@ export default class Sound {
 		this.scriptNode.connect(this.context.destination);
         this.sourceNode.connect(this.gainNode);		
 		
-		this.equalizerNodes = this.connectFilters(this.gainNode);
 		
+		this.gainNode.connect(this.reverbGain);
+		this.reverbGain.connect(this.reverb);
+		this.reverbGain.gain.setValueAtTime(0,0);
+
+		this.gainNode.connect(this.distortion);
+		
+		this.equalizerNodes = this.connectFilters(this.gainNode);
 		this.equalizerNodes.connect(this.panner);
 		this.panner.connect(this.analyser);
 		this.analyser.connect(this.masterGain);
-        this.masterGain.connect(this.context.destination);	
+		this.masterGain.connect(this.masterCompression);
+		this.reverb.connect(this.masterCompression);
+		this.distortion.connect(this.masterCompression);
+        this.masterCompression.connect(this.context.destination);	
     }
 	
 	connectFilters(node) {
-		return this.bandFilters.reduce(this.filterConnecter, this.gainNode);
+		return this.bandFilters.reduce(this.filterConnecter, node);
 	}
 		
 	filterConnecter(prevNode, currentNode) {
@@ -121,7 +164,7 @@ export default class Sound {
 			this.audioLoadOffset = (new Date() - audioLoadStart) / 1000;			
             var newSource = this.context.createBufferSource();
             newSource.buffer = this.sourceNode.buffer;
-            newSource.loop = this.sourceNode.loop;
+            //newSource.loop = this.loop; 
             this.sourceNode = newSource;
             this.connectNodes();
             this.setVolume(this.volume);
@@ -134,8 +177,7 @@ export default class Sound {
         console.log("[Sound] playing " +this.url, this.context.currentTime);
         this.sourceNode.addEventListener("ended", this.soundEnded.bind(this));		
     };
-	
-	
+		
 	getAnalyserData() {
 		return {
 			analyser: this.analyser,
@@ -150,19 +192,26 @@ export default class Sound {
 	
 	getPosition() {
 		return {
-			currentTime: this.getCurrentTime() % this.sourceNode.buffer.duration, 
-			totalTime: this.sourceNode.buffer.duration,
-			percent: (Number(this.getCurrentTime() % this.sourceNode.buffer.duration) / Number(this.sourceNode.buffer.duration)) * 100
+			currentTime: this.getCurrentTime() % this.getDuration(), 
+			totalTime: this.getDuration(),
+			percent: (Number(this.getCurrentTime() % this.getDuration()) / Number(this.getDuration())) * 100
 		}
 	}
 	
+	getDuration() {
+		if (!this.isStream) {
+			return this.sourceNode.buffer.duration;
+		} else {
+			return Number.MAX_VALUE;
+		}
+	}
 	setPositionInSeconds(value) {
 		this.stop();
-		this.start(value);
+		this.play(value);
 	}
 	
 	setPositionInPercent(value) {
-		let newPos = (this.sourceNode.buffer.duration * value) / 100;
+		let newPos = (this.getDuration() * value) / 100;
 		this.stop();
 		this.play(newPos);
 	}
@@ -171,31 +220,22 @@ export default class Sound {
      * @function stop
      */
     stop() {
-        if (!this.context) {
-            this.sourceNode.pause();
-            this.sourceNode.currentTime = 0.0;
-        } else {
-            this.sourceNode.stop();
-        }
-        this.isPlaying = false;
-        console.log("[Sound] stopping " +this.url);
+        this.sourceNode.stop();
+		this.isPlaying = false;
+		console.log("[Sound] stopping " +this.url);
     };
 
 	pause() {
-		console.log("calling pause:", this.context.state);
 		if (this.context.state === 'running') {
 			this.context.suspend();
 		}
 	}
 	
 	resume() {
-		console.log("calling resume:", this.context.state);
-
-	if (this.context.state === 'suspended') {
+		if (this.context.state === 'suspended') {
 			this.context.resume();
 		}		
 	}
-	
 	
     /**
      * Pans the sound left / right. To pan left -1, to pan right 1, and center is 0.
@@ -206,6 +246,27 @@ export default class Sound {
         this.panner.setPosition(value, 0, 0);
     };
 
+	/**
+	 * Sets the wetness of the reverb. The higher the value, the more reverb.
+	 * Will switch on the effect with immidiately on the sound - latency. 
+	 * Therefore there is no reverb on/off setting. 
+	 */
+	setReverbLevel(value) {
+		this.reverbGain.gain.setValueAtTime(value, 0);
+	}
+	
+	setDistortionLevel(value) {
+		this.distortion.curve = this.distortionShaper.createCurve(value);
+	}
+	
+	/**
+	 * Use different types of reverbs.
+	 */
+	setReverbType(type) {
+		var newSource = this.context.createBufferSource();
+		newSource.buffer = this.reverbImpulses[type].buffer;
+		this.reverb.buffer = newSource;		
+	}
     /**
      * Sets the volume of an individual sound.
      * Values range from 0 (no sound) to xx, however,
@@ -214,11 +275,10 @@ export default class Sound {
      * @param {Number} value A value between 0 (no sound) and x.
      */
     setVolume(value) {
-        this.gainNode.gain.value = value / 4;
+        this.gainNode.gain.setValueAtTime(value / 4, 0);
     };
 
     soundEnded() {
-		console.log("sound ended!")
         if (!this.loop) {
             this.isPlaying = false;
         } 
