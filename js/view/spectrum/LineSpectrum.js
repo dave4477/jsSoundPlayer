@@ -3,6 +3,7 @@ import AbstractSpectrum from "./AbstractSpectrum.js";
 export default class LineSpectrum extends AbstractSpectrum {
 	constructor(canvas, context, player) {
 		super(canvas, context, player);
+		//this.canvas.globalCompositeOperation = 'destination-over';
 	}
 	
 	draw() {

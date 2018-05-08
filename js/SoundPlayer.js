@@ -29,7 +29,7 @@ export default class SoundPlayer {
 		this.playerSettings = {context:this.context, masterGain: masterGain, masterAnalyser:masterAnalyser, effects:this.config.effects};
 		this.isMuted = false;		
 	}
-
+	
 	streamSoundInput(callback) {
 		this.soundInput.getUserMedia().then((result) => {
 			console.log("result:", result);

@@ -92,6 +92,9 @@ export default class Sound {
 		
 		this.scriptNode = this.context.createScriptProcessor(2048, 1, 1);
 		this.scriptNode.onaudioprocess = () => {
+			//console.log("isPlaying?", this.isPlaying);
+			//console.log("state?", this.context.state);
+		
 			// get the average for the first channel
 			var array = new Uint8Array(this.analyser.frequencyBinCount);
 			this.analyser.getByteFrequencyData(array);

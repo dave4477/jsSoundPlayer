@@ -50,6 +50,7 @@ export default class View {
 		
 		this.canvasContext = this.canvas.getContext('2d');
 		this.canvasContext.clearRect(0, 0, this.canvas.width, this.canvas.height);		
+		
 		window.requestAnimationFrame(() => this.update());
 	}
 
@@ -59,13 +60,14 @@ export default class View {
 	}
 	
 	update(dt) {
-		window.requestAnimationFrame(() => this.update());
-		
-		this.spectrums[this.visualType].draw();
+		window.requestAnimationFrame(() => this.update());		
 		
 		let snd = (this.player.getPlayingSounds().length > 0) ? this.player.getPlayingSounds()[0] : null;
-		if (snd && !snd.isStreaming && this.controls && this.controls.scrubberControl) {
-			this.controls.scrubberControl.setValue(snd.getPosition().percent);
-		}
+		if (snd) {
+			if (this.controls.scrubberControl) {
+				this.controls.scrubberControl.setValue(snd.getPosition().percent);
+			}
+			this.spectrums[this.visualType].draw();
+		} 
 	}	
 }
