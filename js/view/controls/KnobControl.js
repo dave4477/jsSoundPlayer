@@ -7,7 +7,7 @@ export default class KnobControl {
 	 * @param {Number} minRange The minimum clamped value to return in scaledValue against rotated value.  
 	 * @param {Number} maxRange The maximum clamped value to return in scaledValue against the rotated value.
 	 */
-	constructor(minRotate = 0.1, maxRotate = 0.9, divisions = 0, minRange = 0, maxRange = 1) {
+	constructor(minRotate = 0.1, maxRotate = 0.9, divisions = 0, minRange = 0, maxRange = 1, defaultValue = 0) {
 		this.min = minRotate;
 		this.max = maxRotate;
 		this.minRange = minRange;
@@ -15,14 +15,14 @@ export default class KnobControl {
 		this.divisions = divisions;
 		this.lastRotation = 0;
 		this.scaledValue = 0;
-		this.value = 0;
+		this.value = defaultValue;
 		this.previousAngle = 0;
 		this.previousValue = 0;
 		this.isDragging = false;
 		this.dial = null;
 		this.dialContainer = this.createDial();
 		this.addListeners();
-		this.value = 0.1;
+		this.value = defaultValue;
 	}
 	
 	createDial() {

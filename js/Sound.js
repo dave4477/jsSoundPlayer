@@ -266,6 +266,9 @@ export default class Sound {
 		this.distortion.curve = this.distortionShaper.createCurve(value);
 	}
 	
+	detune(value) {
+		this.sourceNode.detune.value = value;
+	}
 	/**
 	 * Use different types of reverbs.
 	 */

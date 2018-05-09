@@ -1,7 +1,7 @@
 export default class PlayPauseControl {
 	constructor(sound) {
 		this.sound = sound;
-		this.isPaused = false;		
+		this.isPaused = true;		
 	}
 	
 	
