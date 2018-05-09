@@ -7,11 +7,11 @@ export default class Generic1DialControl {
 		this.toggle = null;
 		this.dialControls = {};
 		
-		var minRotate = config.dialMinRotate || 0.1;
-		var maxRotate = config.dialMaxRotate || 0.9;
-		var divisions = config.dialDivisions || 0;
-		var minRange = config.dialMinValue || 0;
-		var maxRange = config.dialMaxValue || 1;
+		var minRotate = config.dial && config.dial.dialMinRotate || 0.1;
+		var maxRotate = config.dial && config.dial.dialMaxRotate || 0.9;
+		var divisions = config.dial && config.dial.dialDivisions || 0;
+		var minRange = config.dial && config.dial.dialMinValue || 0;
+		var maxRange = config.dial && config.dial.dialMaxValue || 1;
 				
 		this.knobControl = new KnobControl(minRotate, maxRotate, divisions, minRange, maxRange);
 		this.config = config || { className:"genericControl", effectName:"", effectToggle:"", knobLabelBottom:"", callback:"", valueMultiplier:1 };

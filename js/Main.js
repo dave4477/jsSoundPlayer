@@ -9,8 +9,7 @@ const config = {
 		reverbs:[
 			{type:"reverb", url:"./js/soundeffects/reverb1.wav", active:true, buffer:null},
 			{type:"reverb", url:"./js/soundeffects/reverb3.wav", active:false, buffer:null}
-		],
-		distortion:null
+		]
 	}
 }
 

@@ -6,23 +6,28 @@ export default class KnobControl {
 	 * @param {Number} maxRotate The maximum rotation the dial can rotate to.
 	 * @param {Number} minRange The minimum clamped value to return in scaledValue against rotated value.  
 	 * @param {Number} maxRange The maximum clamped value to return in scaledValue against the rotated value.
+	 * @param {Number} defaultValue The default scaledValue that will be returned in the onchange event. Should be between minRange and maxRange. 
 	 */
-	constructor(minRotate = 0.1, maxRotate = 0.9, divisions = 0, minRange = 0, maxRange = 1, defaultValue = 0) {
+	constructor(minRotate = 0.1, maxRotate = 0.9, divisions = 0, minRange = 0, maxRange = 1, defaultValue = 0.1) {
 		this.min = minRotate;
 		this.max = maxRotate;
 		this.minRange = minRange;
 		this.maxRange = maxRange;
 		this.divisions = divisions;
 		this.lastRotation = 0;
-		this.scaledValue = 0;
-		this.value = defaultValue;
+		this.scaledValue = defaultValue;
+		this.value = this.scaledValueToValue();
 		this.previousAngle = 0;
 		this.previousValue = 0;
 		this.isDragging = false;
 		this.dial = null;
 		this.dialContainer = this.createDial();
 		this.addListeners();
-		this.value = defaultValue;
+	}
+
+	scaledValueToValue() {
+		var percent = (this.scaledValue - this.minRange) / (this.maxRange - this.minRange) * 100;
+		this.value = ( this.min + this.max) * (percent / 100);
 	}
 	
 	createDial() {
@@ -30,8 +35,13 @@ export default class KnobControl {
 		dialContainer.className = "dialKnobContainer";
 		
 		this.dial = document.createElement("div");
-		this.dial.className = "dial";
+		this.dial.className = "dial";		
+		
+		this.scaledValueToValue();
+		
+		this.dial.style.transform = "rotate(" +this.value * 360+ "deg)";
 		dialContainer.appendChild(this.dial);
+
 		return dialContainer;
 	}
 	
@@ -84,14 +94,6 @@ export default class KnobControl {
 
 		return rad;				
 	}
-
-	/**
-	 * @private
-	 * Converts radians to degrees.
-	 */ 
-	getDegrees(angle) {
-		return angle * (180 / Math.PI);		
-	}
 	
 	mouseDown(e) {
 		document.body.onselectstart = () => { return false; }		
@@ -102,9 +104,7 @@ export default class KnobControl {
 
 	mouseMove(e) {
 		if (this.isDragging) {
-			const rad = this.getAngle(e);
-			const deg = this.getDegrees(rad);
-			
+			const rad = this.getAngle(e);		
 			const newAngle = rad;
 			const oldAngle = this.previousAngle;
 			this.previousAngle = newAngle;
@@ -121,6 +121,7 @@ export default class KnobControl {
 
 			const deltaValue = deltaAngle / Math.PI / 2;
 			const newProposedValue = this.value + deltaValue;
+			
 			this.value = newProposedValue;
 			
 			this.updateValue();
@@ -131,13 +132,13 @@ export default class KnobControl {
 		}
 	}
 			
-	mouseUp() {
+	mouseUp(e) {
 		this.isDragging = false;
 	}
 	
 	updateValue() {
 		if (Number.isFinite(this.divisions) && this.divisions >= 2) {
-			this._value = Math.round(this.value * this.divisions) / this.divisions;
+			this.value = Math.round(this.value * this.divisions) / this.divisions;
 		}
 
 		// Clamping to the defined min..max range.
@@ -161,4 +162,20 @@ export default class KnobControl {
 		window.addEventListener('mousemove', this.mouseMoveHandler);
 		window.addEventListener('mouseup', this.mouseUpHandler);
 	}	
+	
+	/**
+	 * @private
+	 * Converts radians to degrees.
+	 */ 
+	angleToDegrees(angle) {
+		return angle * (180 / Math.PI);		
+	}
+
+	/**
+	 * @private
+	 * Converts degrees to radians.
+	 */ 
+	degreesToAngle(deg) {
+		return deg * Math.PI / 180;
+	}
 }

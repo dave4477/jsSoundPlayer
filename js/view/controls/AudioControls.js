@@ -26,9 +26,9 @@ export default class AudioControls {
 		this.volumeControl = new VolumeControl(this.sound);
 		this.panningControl = new PanningControl(this.sound);
 		this.bandControls = new BandControls(this.sound);
-		this.reverbControls = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Reverb", effectToggle:"On", knobLabelBottom:"Level", callback:"setReverbLevel", valueMultiplier:1 });		
-		this.distortionControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Distortion", effectToggle:"Damage", knobLabelBottom:"Drive", callback:"setDistortionLevel", valueMultiplier:100 });
-		this.detuneControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Detuner", effectToggle:"On", knobLabelBottom:"Detune", callback:"detune", dialMinValue:-1200, dialMaxValue:1200, valueMultiplier:1 }); 
+		this.reverbControls = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Reverb", effectToggle:"On", knobLabelBottom:"Level", callback:"setReverbLevel", valueMultiplier:1, defaultValue:0.1 });		
+		this.distortionControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Distortion", effectToggle:"Damage", knobLabelBottom:"Drive", callback:"setDistortionLevel", valueMultiplier:100, defaultValue:10 });
+		this.detuneControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Detuner", effectToggle:"On", knobLabelBottom:"Detune", callback:"detune", dial:{dialMinValue:-1200, dialMaxValue:1200}, valueMultiplier:1, defaultValue:50 }); 
 		document.body.appendChild(this.container);
 		
 		this.container.appendChild(this.buttonPlayPause.createControl());
