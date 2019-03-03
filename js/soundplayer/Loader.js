@@ -1,7 +1,6 @@
 /**
- * The Loader class is responsible for loading audio files.
- * Once all audio files are loaded we fulfill the promise
- * which is returned to the soundPlayer.
+ * The Loader class is responsible for loading files.
+ * Once all files are loaded we fulfill the promise.
  */
 export default class Loader {
 	constructor() {
@@ -11,7 +10,7 @@ export default class Loader {
 
 	/**
 	 * Loads a bunch of files.
-	 * @param {string} url The url for the sound to load.
+	 * @param {string} url The url for the file to load.
 	 */
 	loadFiles(files) {
 		return new Promise((resolve, reject) => {
