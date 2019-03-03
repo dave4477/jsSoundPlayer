@@ -19,7 +19,6 @@ export default class Sound {
 		this._timeOffset = 0;
 		this._nodes = [];
 		this._buffer = buffer;
-		this._isConnected = false;
 
 		// public
 		this.id = url;
@@ -28,7 +27,6 @@ export default class Sound {
 		this.volume = null;
 		this.isPlaying = this.isStream;
 		this._createNodes(buffer);
-
     }
 
 	/**

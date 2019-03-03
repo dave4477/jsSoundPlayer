@@ -61,8 +61,8 @@ export default class View {
 		window.requestAnimationFrame(() => this.update());		
 		
 		let snd = (this.player.getPlayingSounds().length > 0) ? this.player.getPlayingSounds()[0] : null;
-		if (snd && !snd.isStream) {
-			if (this.controls.scrubberControl) {
+		if (snd) {
+			if (this.controls.scrubberControl && !snd.isStream) {
 				this.controls.scrubberControl.setValue(snd.getPosition().percent);
 			}
 			this.spectrums[this.visualType].draw();
