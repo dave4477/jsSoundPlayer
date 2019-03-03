@@ -18,7 +18,6 @@ export default class SoundPlayer {
 		this._sounds = {};
 		this._context = AudioContext.getInstance().context;
 		this._loader = new Loader(this._context);
-
 		this.isMuted = false;
 	}
 

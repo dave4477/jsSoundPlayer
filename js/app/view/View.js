@@ -61,7 +61,7 @@ export default class View {
 		window.requestAnimationFrame(() => this.update());		
 		
 		let snd = (this.player.getPlayingSounds().length > 0) ? this.player.getPlayingSounds()[0] : null;
-		if (snd) {
+		if (snd && !snd.isStream) {
 			if (this.controls.scrubberControl) {
 				this.controls.scrubberControl.setValue(snd.getPosition().percent);
 			}

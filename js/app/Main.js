@@ -28,6 +28,8 @@ class Main {
 	
 	streamSoundInput() {
 		this.soundPlayer.streamSoundInput((sound) => {
+			this.addNodes(sound);
+			sound.stream();
 			this.view = new View(this.soundPlayer, 480, 260);				
 
 		});
@@ -37,16 +39,20 @@ class Main {
 		const url = "./assets/sound3.mp3";
 		let result = await this.soundPlayer.loadSounds([url]); 
 		
-		// Add some sound effects through the Sound API.
-		result[url].addNode("distortion", new Distortion())
+		// Grab the sound instance and add some sound effects through the Sound API.
+		this.addNodes(result[url]);		
+		
+		this.soundPlayer.playSound("./assets/sound3.mp3", true);
+		this.view = new View(this.soundPlayer, 480, 260);		
+	}
+	
+	addNodes(snd) {
+		snd.addNode("distortion", new Distortion())
 			.addNode("bandFilters", new BandpassFilters())
 			.addNode("panner", new Panner())
 			.addNode("reverb", new Reverb("./assets/soundeffects/reverb1.wav"))
 			.addNode("masterGain", new Gain())
-			.addNode("compressor", new Compressor());		
-		
-		this.soundPlayer.playSound("./assets/sound3.mp3", true);
-		this.view = new View(this.soundPlayer, 480, 260);		
+			.addNode("compressor", new Compressor());				
 	}
 }
 var main = new Main(window);

@@ -24,26 +24,39 @@ export default class AudioControls {
 		this.buttonPlayPause = new PlayPauseControl(this.sound);
 		this.scrubberControl = new ScrubberControl(this.sound);
 		this.volumeControl = new VolumeControl(this.sound);
-		this.panningControl = new PanningControl(this.sound);
-		this.bandControls = new BandControls(this.sound);
-		this.reverbControls = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Reverb", effectToggle:"On", knobLabelBottom:"Level", callback:"setReverbLevel", valueMultiplier:1, defaultValue:0.1 });		
-		this.distortionControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Distortion", effectToggle:"Damage", knobLabelBottom:"Drive", callback:"setDistortionLevel", valueMultiplier:100, defaultValue:10 });
-		this.detuneControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Detuner", effectToggle:"On", knobLabelBottom:"Detune", callback:"detune", dial:{dialMinValue:-1200, dialMaxValue:1200}, valueMultiplier:1, defaultValue:50 }); 
-		document.body.appendChild(this.container);
-		
+
 		this.container.appendChild(this.buttonPlayPause.createControl());
 		this.container.appendChild(this.scrubberControl.createControl());	
-		this.container.appendChild(this.bandControls.createControl());
+		if (this.sound.getNodeByName("bandFilters")) {
+			this.bandControls = new BandControls(this.sound);
+			this.container.appendChild(this.bandControls.createControl());
+		}
+
 		this.container.appendChild(this.volumeControl.createControl());
-		this.container.appendChild(this.panningControl.createControl());
+				
+		if (this.sound.getNodeByName("panner")) {
+			this.panningControl = new PanningControl(this.sound);
+			this.container.appendChild(this.panningControl.createControl());
+		}
 		
 		const clearDiv = document.createElement("div");
 		clearDiv.style.clear = "both";
-		this.container.appendChild(clearDiv);
+		this.container.appendChild(clearDiv);		
+		
+		if (this.sound.getNodeByName("reverb")) {
+			this.reverbControls = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Reverb", effectToggle:"On", knobLabelBottom:"Level", callback:"setReverbLevel", valueMultiplier:1, defaultValue:0.1 });		
+			this.container.appendChild(this.reverbControls.createControl());		
+		}
+		if (this.sound.getNodeByName("distortion")) {
+			this.distortionControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Distortion", effectToggle:"Damage", knobLabelBottom:"Drive", callback:"setDistortionLevel", valueMultiplier:100, defaultValue:10 });
+			this.container.appendChild(this.distortionControl.createControl());		
+		}
+		if (!this.sound.isStream) {
+			this.detuneControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Detuner", effectToggle:"On", knobLabelBottom:"Detune", callback:"detune", dial:{dialMinValue:-1200, dialMaxValue:1200}, valueMultiplier:1, defaultValue:50 }); 
+			this.container.appendChild(this.detuneControl.createControl());
+		}
+		document.body.appendChild(this.container);
 
-		this.container.appendChild(this.reverbControls.createControl());		
-		this.container.appendChild(this.distortionControl.createControl());		
-		this.container.appendChild(this.detuneControl.createControl());
 	}
 
 	setSound(sound) {

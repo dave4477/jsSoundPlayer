@@ -18,7 +18,8 @@ export default class Sound {
 		this._url = url;
 		this._timeOffset = 0;
 		this._nodes = [];
-		this._createNodes(buffer);
+		this._buffer = buffer;
+		this._isConnected = false;
 
 		// public
 		this.id = url;
@@ -26,6 +27,8 @@ export default class Sound {
 		this.loop = null;
 		this.volume = null;
 		this.isPlaying = this.isStream;
+		this._createNodes(buffer);
+
     }
 
 	/**
@@ -58,6 +61,10 @@ export default class Sound {
 		}
 		this.bufferLength = this.analyserNode.frequencyBinCount;
 		this.dataArray = new Float32Array(this.bufferLength);
+		
+		if (this.isStream) {
+			this._connectNodes();
+		}
 	}
 
 	/**
@@ -85,12 +92,8 @@ export default class Sound {
 	addNode(name, value) {
 		this._nodes.push({name:name, value:value});
 		return this;
-	}
-
-	disconnectAll() {
-		this.preAmp.output.disconnect();
-	}
-
+	}	
+	
     /**
 	 * Connect all mixer nodes to the sourceNode.
 	 */
@@ -117,6 +120,14 @@ export default class Sound {
 		return prev.connect(curr);
 	}
 
+	/**
+	 * Streams a sound, should be called after adding nodes.
+	 */
+	stream() {
+		this.preAmp.output.disconnect(this.analyserNode.input);
+		this._connectNodes();
+	}
+	
     /**
      * (Re) Plays the sound for webAudio by copying the old buffer into the new one,
      * as a bufferSource can only be used once. Connect to gain nodes for volume,
@@ -135,7 +146,7 @@ export default class Sound {
             var newSource = this._context.createBufferSource();
             newSource.buffer = this.sourceNode.buffer;
             this.sourceNode = newSource;
-            this._connectNodes();
+			this._connectNodes();
             this.setVolume(this.volume);
 			this._timeOffset = offset;
             newSource.start(0, offset, this.sourceNode.buffer.duration - offset);
@@ -244,6 +255,7 @@ export default class Sound {
      */
     setVolume(value) {
         this.preAmp.setLevel(value);
+		this.volume = value;
     };
 
     soundEnded() {
