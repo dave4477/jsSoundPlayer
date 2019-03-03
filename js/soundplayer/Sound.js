@@ -15,7 +15,7 @@ export default class Sound {
 		// private
 		this._context = AudioContext.getInstance().context;
 		this._contextCreatedAt = new Date();
-        this._url = url;
+		this._url = url;
 		this._timeOffset = 0;
 		this._nodes = [];
 		this._createNodes(buffer);
@@ -24,8 +24,8 @@ export default class Sound {
 		this.id = url;
 		this.isStream = url === "stream";
 		this.loop = null;
-        this.volume = null;
-        this.isPlaying = this.isStream;
+		this.volume = null;
+		this.isPlaying = this.isStream;
     }
 
 	/**
