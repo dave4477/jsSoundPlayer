@@ -1,5 +1,8 @@
 body {
-/*	background:url(background.jpg); */
+  background		:#fff;
+  background-image	:url(./../assets/background.gif);
+  background-repeat	:repeat-x;
+  background-position	:bottom;  
 }
 
 .blueBlackGradient {
