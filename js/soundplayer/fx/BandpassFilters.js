@@ -1,10 +1,11 @@
 import AudioContext from './../AudioContext.js';
+import Gain from './../fx/Gain.js';
 
 export default class BandpassFilters {
 	constructor() {
 		this._context = AudioContext.getInstance().context;
 		this.bandFilters = [];
-		this.input = this._createBiquadFilterNode("lowshelf", 60);
+		this.input = this._createBiquadFilterNode("lowshelf", 600); 
 		this.bandFilters.push(this._createBiquadFilterNode("peaking", 170));
 		this.bandFilters.push(this._createBiquadFilterNode("peaking", 310));
 		this.bandFilters.push(this._createBiquadFilterNode("peaking", 600));
