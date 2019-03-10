@@ -48,6 +48,7 @@ export default class Generic1DialControl {
 		const knobContainer = document.createElement("div");
 		knobContainer.className = "knobControlContainer";
 		knobContainer.appendChild(this.knobControl.createControl());
+		//knobContainer.appendChild(this.knobControl.createControl());
 		
 		container.appendChild(effectName);
 		container.appendChild(effectToggle);

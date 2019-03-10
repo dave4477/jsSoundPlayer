@@ -6,6 +6,7 @@ import BandControls from './BandControls.js';
 import ReverbControls from './ReverbControls.js';
 import DistortionControl from './DistortionControl.js';
 import Generic1DialControl from './Generic1DialControl.js';
+import GenericXDialControl from './GenericXDialControl.js';
 
 export default class AudioControls {
 	constructor(width, player) {
@@ -43,14 +44,59 @@ export default class AudioControls {
 		clearDiv.style.clear = "both";
 		this.container.appendChild(clearDiv);		
 		
-		if (this.sound.getNodeByName("reverb")) {
-			this.reverbControls = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Reverb", effectToggle:"On", knobLabelBottom:"Level", callback:"setReverbLevel", valueMultiplier:1, defaultValue:0.1 });		
-			this.container.appendChild(this.reverbControls.createControl());		
-		}
 		if (this.sound.getNodeByName("distortion")) {
-			this.distortionControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Distortion", effectToggle:"Damage", knobLabelBottom:"Drive", callback:"setDistortionLevel", valueMultiplier:100, defaultValue:10 });
+			this.distortionControl = new Generic1DialControl(this.sound, { 
+				className:"distortionControl", 
+				effectName:"Distortion", 
+				effectToggle:"Damage", 
+				knobLabelBottom:"Drive", 
+				callback:"setDistortionLevel", 
+				valueMultiplier:100, 
+				defaultValue:10 
+			});
 			this.container.appendChild(this.distortionControl.createControl());		
 		}
+		if (this.sound.getNodeByName("reverb")) {
+			this.reverbControls = new Generic1DialControl(this.sound, { 
+				className:"distortionControl", 
+				effectName:"Reverb", 
+				effectToggle:"On", 
+				knobLabelBottom:"Level", 
+				callback:"setReverbLevel", 
+				valueMultiplier:1, 
+				defaultValue:0.1 
+			});		
+			this.container.appendChild(this.reverbControls.createControl());		
+		}
+		
+		if (this.sound.getNodeByName("delay")) {
+			this.delayControls = new GenericXDialControl(this.sound, { 
+				className:"distortionControl", 
+				effectName:"Delay", 
+				effectToggle:"On", 
+				dial:[{
+					name:"delayTime",
+					knobLabelBottom:"Delay", 
+					callback:"setDelayTime", 
+					dialMinValue:0.1, 
+					dialMaxValue:4,
+					valueMultiplier:1 
+
+				}, 
+				{
+					name:"feedback",
+					knobLabelBottom:"Feedback", 
+					callback:"setFeedBack", 
+					dialMinValue:0.1, 
+					dialMaxValue:1,
+					valueMultiplier:1 
+				}],
+				defaultValue:1 
+			});
+			this.container.appendChild(this.delayControls.createControl());
+		}
+
+
 		if (!this.sound.isStream) {
 			this.detuneControl = new Generic1DialControl(this.sound, { className:"distortionControl", effectName:"Detuner", effectToggle:"On", knobLabelBottom:"Detune", callback:"detune", dial:{dialMinValue:-1200, dialMaxValue:1200}, valueMultiplier:1, defaultValue:50 }); 
 			this.container.appendChild(this.detuneControl.createControl());

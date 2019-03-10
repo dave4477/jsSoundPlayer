@@ -7,7 +7,7 @@ import Distortion from './../soundplayer/fx/Distortion.js';
 import Panner from './../soundplayer/fx/Panner.js';
 import BandpassFilters from './../soundplayer/fx/BandpassFilters.js';
 import Compressor from './../soundplayer/fx/Compressor.js';
-
+import Delay from './../soundplayer/fx/Delay.js';
 /**
  * Main entry point to start everything. 
  * Here we initialize the soundPlayer, load the sounds
@@ -52,6 +52,7 @@ class Main {
 			.addNode("panner", new Panner())
 			.addNode("reverb", new Reverb("./assets/soundeffects/reverb1.wav"))
 			.addNode("masterGain", new Gain())
+			.addNode("delay", new Delay({ feedback: 0.4, delayTime:1 }))
 			.addNode("compressor", new Compressor());				
 	}
 }

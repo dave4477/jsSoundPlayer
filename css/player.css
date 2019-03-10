@@ -111,12 +111,16 @@ body {
 
 .distortionControl {
 	position:relative;
-	height:100px;
+	float:left;
+	height:200px;
+	width:125px;
 	border:1px outset;
+	border-radius:22px 22px;
 	padding:4px;
 	font-family:Verdana, sans-serif;
 	font-size:12px;	
-	background: linear-gradient(to bottom right, #cccccc, #eeeeee);
+	background: linear-gradient(to bottom, #1e5799 0%,#2989d8 50%,#207cca 51%,#7db9e8 100%);
+
 }
 
 #volumeSlider, 

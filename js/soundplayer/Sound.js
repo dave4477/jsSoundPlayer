@@ -92,6 +92,17 @@ export default class Sound {
 		return this;
 	}	
 	
+	/**
+	 * Adds a node at a given index.
+	 * 
+	 * @param {Number} index The index to put the node.
+	 * @param {string} name The name for the node.
+	 * @param {Object} value The actual node.
+	 */
+	addNodeAt(index, name, value) {
+		this._nodes.splice(index, 0, {name:name, value:value});
+	}
+	
     /**
 	 * Connect all mixer nodes to the sourceNode.
 	 */
@@ -115,6 +126,7 @@ export default class Sound {
 	_nodeConnecter(prev, curr) {
 		prev = prev.output ? prev : prev.value;
 		curr = curr.input ? curr : curr.value;
+
 		return prev.connect(curr);
 	}
 
@@ -239,7 +251,14 @@ export default class Sound {
 	setDistortionLevel(value) {
 		this.getNodeByName("distortion").value.setLevel(value);
 	}
+	
+	setDelayTime(value) {
+		this.getNodeByName("delay").value.setDelayTime(value);
+	}
 
+	setFeedBack(value) {
+		this.getNodeByName("delay").value.setFeedBack(value);		
+	}
 	detune(value) {
 		this.sourceNode.detune.value = value;
 	}
