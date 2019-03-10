@@ -27,8 +27,8 @@ result[url].addNode("distortion", new Distortion())
 this.soundPlayer.playSound(url, true);
 
 
-#Usage example with user media (microphone or line-in) sound:
-
+<h2>Usage example with user media (microphone or line-in) sound:</h2>
+;
 // Create an instance of soundplayer.
 this.soundPlayer = new SoundPlayer();
 
@@ -40,7 +40,7 @@ this.soundPlayer.streamSoundInput((sound) => {
 		.addNode("reverb", new Reverb("./assets/soundeffects/reverb1.wav"))
 		.addNode("masterGain", new Gain())
 		.addNode("delay", new Delay({ feedback: 0.4, delayTime:1, maxDelayTime:4 }))
-		.addNode("compressor", new Compressor());	;		
+		.addNode("compressor", new Compressor());	
 
 	// Play the soundstream.
 	sound.stream();
