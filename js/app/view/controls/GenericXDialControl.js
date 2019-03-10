@@ -17,9 +17,7 @@ export default class Generic1DialControl {
 			this.dialControls[config.dial[i].name] = new KnobControl(minRotate, maxRotate, divisions, minRange, maxRange);
 		}
 		this.config = config || { className:"genericControl", effectName:"", effectToggle:"", knobLabelBottom:"", callback:"", valueMultiplier:1 };
-		this.isDragging = false;
-		this.mouseX = 0;
-		this.mouseY = 0;
+
 	}
 	
 	createControl() {
@@ -49,32 +47,23 @@ export default class Generic1DialControl {
 		
 		const knobContainer = document.createElement("div");
 		knobContainer.className = "knobControlContainer";
-		
-		/*
-		Object.keys(this.dialControls).forEach(key => {
-			knobContainer.appendChild(this.dialControls[key].createControl());
-		});*/
+
 		
 		for (var i = 0; i < this.config.dial.length; i++) {
-			knobContainer.appendChild(this.dialControls[this.config.dial[i].name].createControl());
+			var control = this.dialControls[this.config.dial[i].name].createControl();
+			knobContainer.appendChild(control);
 			if (this.config.dial[i].knobLabelBottom.length > 0) {
+			
 				const knobLabelBottom = document.createElement("div");
 				knobLabelBottom.className = "knobLabelBottom";
 				knobLabelBottom.innerHTML = this.config.dial[i].knobLabelBottom;
-				knobContainer.appendChild(knobLabelBottom);
+				control.appendChild(knobLabelBottom);
 			}
-			knobContainer.appendChild(document.createElement("div"));
-
-			
 		}		
-		
 		container.appendChild(effectName);
 		container.appendChild(effectToggle);
 		container.appendChild(knobContainer);
 		
-
-		
-
 		this.addListeners();
 		return container;
 	}

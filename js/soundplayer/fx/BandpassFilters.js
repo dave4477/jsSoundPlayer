@@ -1,9 +1,10 @@
-import AudioContext from './../AudioContext.js';
+import AbstractAudioNode from './AbstractAudioNode.js';
 import Gain from './../fx/Gain.js';
 
-export default class BandpassFilters {
+export default class BandpassFilters extends AbstractAudioNode {
 	constructor() {
-		this._context = AudioContext.getInstance().context;
+		super();
+		
 		this.bandFilters = [];
 		this.input = this._createBiquadFilterNode("lowshelf", 600); 
 		this.bandFilters.push(this._createBiquadFilterNode("peaking", 170));
@@ -19,17 +20,6 @@ export default class BandpassFilters {
 		this.bandFilters.unshift(this.input);
 		this.output = this.bandFilters[this.bandFilters.length-1];
 		this.node = this.input;
-	}
-
-	/**
-	 * Connects this node to another node.
-	 *
-	 * @param {Object} node An effect node to connect to.
-	 * @return {node} The previous node the new node was connected to.
-	 */
-	connect(node) {
-		this.output.connect(node.input);
-		return node;
 	}
 
 	_createBiquadFilterNode(type, frequency) {

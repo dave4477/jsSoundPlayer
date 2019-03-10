@@ -1,18 +1,20 @@
 import Loader from './../Loader.js';
-import AudioContext from './../AudioContext.js';
+import AbstractAudioNode from './AbstractAudioNode.js';
 
 /**
  * Creates a reverb effect using a convolver.
  * Nodes: Gain -> Convolver -> Gain
  */
-export default class Reverb {
+export default class Reverb extends AbstractAudioNode {
 	/**
 	 * @param {string} reverb The impulse url for the reverb. This should be a short impulse sound.
 	 * @param {Number} value The gain value for the reverb. Default is 0.
 	 */
 	constructor(reverb, value = 0) {
+		
+		super();
+		
 		this._reverbUrl = reverb;
-		this._context = AudioContext.getInstance().context;
 		this._loader = new Loader(this._context);
 		this._reverbs = [];
 
@@ -30,17 +32,6 @@ export default class Reverb {
 		this.output = this._master;
 		this.setLevel(0);
 		this._loadReverbs();
-	}
-
-	/**
-	 * Connects this node to another node.
-	 *
-	 * @param {Object} node An effect node to connect to.
-	 * @return {node} The previous node the new node was connected to.
-	 */
-	connect(node) {
-		this.output.connect(node.input);
-		return node;
 	}
 
 	async _loadReverbs() {

@@ -1,18 +1,19 @@
-import AudioContext from './../AudioContext.js';
+import AbstractAudioNode from './AbstractAudioNode.js';
 
 /**
  * Creates a reverb effect using a convolver.
  * Nodes: Gain -> Convolver -> Gain
  */
-export default class Reverb {
+export default class Reverb extends AbstractAudioNode {
 	/**
 	 * @param {string} reverb The impulse url for the reverb. This should be a short impulse sound.
 	 * @param {Number} value The gain value for the reverb. Default is 0.
 	 */
 	constructor(options) {
+		super();
 		
 		const { feedback, delayTime } = options;
-		this._context = AudioContext.getInstance().context;
+
 		this.input = this._context.createGain();
 		this.output = this._context.createGain();
 		this._preAmp = this._context.createGain();
@@ -20,7 +21,6 @@ export default class Reverb {
 		this._master.gain.value = feedback;
 		
 		this.delay = this._context.createDelay(8);
-		//this.delay.delayTime.value = delayTime;
 
 		this.feedback = this._context.createGain();
 		this.feedback.gain.value = 0.4;
@@ -46,18 +46,6 @@ export default class Reverb {
 		biquadFilter.frequency.setValueAtTime(1000, this._context.currentTime);
 		return biquadFilter;
 	}
-
-	/**
-	 * Connects this node to another node.
-	 *
-	 * @param {Object} node An effect node to connect to.
-	 * @return {node} The previous node the new node was connected to.
-	 */
-	connect(node, inputIndex = 0, outputIndex = 0) {
-		this.output.connect(node.input, inputIndex, outputIndex);
-		return node;
-	}
-
 
 	/**
 	 * Sets the wetness level for the reverb.

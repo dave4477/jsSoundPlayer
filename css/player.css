@@ -112,10 +112,10 @@ body {
 .distortionControl {
 	position:relative;
 	float:left;
-	height:200px;
-	width:125px;
+	height:150px;
+	width:105px;
 	border:1px outset;
-	border-radius:22px 22px;
+	border-radius:8px 8px;
 	padding:4px;
 	font-family:Verdana, sans-serif;
 	font-size:12px;	
@@ -142,9 +142,12 @@ body {
 	padding:10px 0px 5px 20px;	
 }
 
+.knobControlContainer {
+	position:absolute;
+	width:100%;
+}
 .dialKnobContainer {
 	display:inline-block;
-	position:relative;
 	width:25px;
 	height:25px;
 	background:url('./../assets/dialcontainer.tiny.png');
@@ -152,7 +155,7 @@ body {
 }
 
 .dialKnobContainer .dial {
-	position:absolute;
+	position:relative;
 	left:3px;
 	top:3px;
 	width:19px;
@@ -163,28 +166,27 @@ body {
 
 .knobLabelBottom {
 	font-size:10px;
+	padding:4px 0px;
 }
 
 .distortionControl .knobLabelBottom {
-	position:relative;
-	left:58px;	
 	color:#333;
 }
 
 .distortionControl .dialKnobContainer {
-	left:60px;
+	width:50px;
 }
 /**
  * Effect titles
  */
 .effectName {
-	/*font-family:"Arial Black", Arial, Verdana, sans-serif;*/
+	font-family:monospace;
 	font-size:22px;
 	font-weight:bold;
 	color:#efefef;
 	text-shadow:1px 1px 1px #999;
 	font-style:italic;
-	letter-spacing:-3px;
+	letter-spacing:-2px;
 	padding-bottom:5px;
 	font-variant:small-caps;
 }

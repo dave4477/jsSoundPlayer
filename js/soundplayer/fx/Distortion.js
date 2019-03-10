@@ -1,8 +1,10 @@
-import AudioContext from './../AudioContext.js';
+import AbstractAudioNode from './AbstractAudioNode.js';
 
-export default class Distortion {
+export default class Distortion extends AbstractAudioNode {
 	constructor() {
-		this._context = AudioContext.getInstance().context;
+		
+		super();
+		
 		this.node = this._context.createWaveShaper();
 		this.input = this.node;
 		this.output = this.node;
@@ -22,17 +24,6 @@ export default class Distortion {
 			curve[i] = ( 3 + k ) * x * 20 * deg / ( Math.PI + k * Math.abs(x) );
 		}
 		return curve;
-	}
-	
-	/**
-	 * Connects this node to another node.
-	 *
-	 * @param {Object} node An effect node to connect to.
-	 * @return {node} The previous node the new node was connected to.
-	 */
-	connect(node) {
-		this.output.connect(node.input);
-		return node;
 	}
 
 	setLevel(value) {

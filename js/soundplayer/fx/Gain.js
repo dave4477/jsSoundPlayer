@@ -1,22 +1,11 @@
-import AudioContext from './../AudioContext.js';
+import AbstractAudioNode from './AbstractAudioNode.js';
 
-export default class Gain {
+export default class Gain extends AbstractAudioNode {
 	constructor() {
-		this._context = AudioContext.getInstance().context;
+		super();
 		this.node = this._context.createGain();
 		this.input = this.node;
 		this.output = this.node;
-	}
-
-	/**
-	 * Connects this node to another node.
-	 *
-	 * @param {Object} node An effect node to connect to.
-	 * @return {node} The previous node the new node was connected to.
-	 */
-	connect(node) {
-		this.output.connect(node.input);
-		return node;
 	}
 
 	setLevel(value) {

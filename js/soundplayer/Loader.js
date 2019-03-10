@@ -2,6 +2,8 @@
  * The Loader class is responsible for loading files.
  * Once all files are loaded we fulfill the promise.
  */
+const HTTP_STATUS_OK = 200;
+
 export default class Loader {
 	constructor() {
 		this._numFiles = 0;
@@ -27,7 +29,7 @@ export default class Loader {
 		request.responseType = "arraybuffer";
 		request.onreadystatechange = ((request) => {
 			if (request.readyState === XMLHttpRequest.DONE) {
-				if (request.status !== Loader.HTTP_STATUS_OK) {
+				if (request.status !== HTTP_STATUS_OK) {
 					this._throwLoadError(url);
 				}
 				this._fileLoaded(url, request, resolve);
@@ -49,4 +51,3 @@ export default class Loader {
 		this._files[url] = null;
 	}
 }
-Loader.HTTP_STATUS_OK = 200;
