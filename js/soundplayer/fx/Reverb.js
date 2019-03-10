@@ -49,11 +49,15 @@ export default class Reverb extends AbstractAudioNode {
 		this._reverb.buffer = this._reverbs[0].buffer;
 	}
 
+	onImpulseLoaded() {
+	}
+	
 	loadImpulse() {
 		return new Promise((resolve, reject) => {
 			this._loader.loadFiles([this._reverbUrl]).then((reverbSound) => {
 				this._context.decodeAudioData(reverbSound[this._reverbUrl], buffer => {
 					this._reverbs.push({buffer:buffer, url:this._reverbUrl});
+					this.onImpulseLoaded(buffer);
 					resolve(this._reverbs);
 				});
 			});

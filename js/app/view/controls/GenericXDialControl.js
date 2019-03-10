@@ -1,9 +1,10 @@
 import KnobControl from './KnobControl.js';
 import LEDControl from './LEDControl.js';
 
-export default class Generic1DialControl {
+export default class GenericXDialControl {
 	constructor(sound, config) {
 		this.shapeSlider = null;
+		this.container = null;
 		this.sound = sound;
 		this.toggle = null;
 		this.dialControls = {};
@@ -26,8 +27,8 @@ export default class Generic1DialControl {
 	}
 		
 	createToggle() {
-		const container = document.createElement("div");
-		container.className = this.config.className; 
+		this.container = document.createElement("div");
+		this.container.className = this.config.className; 
 		
 		const effectName = document.createElement("div");
 		effectName.className = "effectName";
@@ -57,12 +58,12 @@ export default class Generic1DialControl {
 				control.appendChild(knobLabelBottom);
 			}
 		}		
-		container.appendChild(effectName);
-		container.appendChild(effectToggle);
-		container.appendChild(knobContainer);
+		this.container.appendChild(effectName);
+		this.container.appendChild(effectToggle);
+		this.container.appendChild(knobContainer);
 		
 		this.addListeners();
-		return container;
+		return this.container;
 	}
 	
 	addListeners() {		

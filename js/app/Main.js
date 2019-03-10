@@ -42,7 +42,7 @@ class Main {
 		// Grab the sound instance and add some sound effects through the Sound API.
 		this.addNodes(result[url]);		
 		
-		this.soundPlayer.playSound("./assets/sound3.mp3", true);
+		this.soundPlayer.playSound(url, true);
 		this.view = new View(this.soundPlayer, 500, 260);		
 	}
 	

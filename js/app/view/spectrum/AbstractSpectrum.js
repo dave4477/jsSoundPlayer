@@ -1,9 +1,9 @@
 export default class AbstractSpectrum {
-	constructor(canvas, context, player) {
+	constructor(canvas, context, player = null, sound = null) {
 		this.canvas = canvas;
 		this.context = context;
 		this.player = player;
-		this.sound = this.player.getPlayingSounds()[0];
+		this.sound = player ? this.player.getPlayingSounds()[0] : sound;
 		this.data = null;
 	}
 	
@@ -17,6 +17,10 @@ export default class AbstractSpectrum {
 		this.data = this.sound.getAnalyserData();
 		this.data.analyser.getFloatFrequencyData(this.data.dataArray);
 		this.clearCanvas();
+	}
+	
+	drawFromAnalyser(analyser) {
+		this.data = analyser;
 	}
 	
 }

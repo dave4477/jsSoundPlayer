@@ -4,6 +4,7 @@ import VolumeControl from './VolumeControl.js';
 import PanningControl from './PanningControl.js';
 import BandControls from './BandControls.js';
 import GenericXDialControl from './GenericXDialControl.js';
+import FullSpectrum from './FullSpectrum.js';
 
 export default class AudioControls {
 	constructor(width, player) {
@@ -70,6 +71,22 @@ export default class AudioControls {
 			});		
 			let reverbControl = this.reverbControls.createControl();
 			this.container.appendChild(reverbControl);
+			
+			const impulseCanvas = document.createElement("canvas");
+			impulseCanvas.style.top = 65;
+			impulseCanvas.style.left = 5;
+			impulseCanvas.width = 100;
+			impulseCanvas.height = 20;
+			impulseCanvas.style.position = "relative";
+			impulseCanvas.style.borderRadius = "8px";
+			var canvasContext = impulseCanvas.getContext('2d');
+			
+			this.sound.getNodeByName("reverb").value.onImpulseLoaded = (buffer) => {
+				this.impulseSpectrum = new FullSpectrum(impulseCanvas, canvasContext, buffer);
+				this.reverbControls.container.appendChild(impulseCanvas);
+				console.log(reverbControl);
+				this.impulseSpectrum.draw();
+			}
 		}
 		
 		if (this.sound.getNodeByName("delay")) {
