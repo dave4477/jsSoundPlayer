@@ -52,7 +52,7 @@ class Main {
 			.addNode("panner", new Panner())
 			.addNode("reverb", new Reverb("./assets/soundeffects/reverb1.wav"))
 			.addNode("masterGain", new Gain())
-			.addNode("delay", new Delay({ feedback: 0.4, delayTime:1 }))
+			.addNode("delay", new Delay({ feedback: 0.4, delayTime:1, maxDelayTime:4 }))
 			.addNode("compressor", new Compressor());				
 	}
 }
