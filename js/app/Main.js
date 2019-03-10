@@ -30,7 +30,7 @@ class Main {
 		this.soundPlayer.streamSoundInput((sound) => {
 			this.addNodes(sound);
 			sound.stream();
-			this.view = new View(this.soundPlayer, 480, 260);				
+			this.view = new View(this.soundPlayer, 480, 220);				
 
 		});
 	}
@@ -43,7 +43,7 @@ class Main {
 		this.addNodes(result[url]);		
 		
 		this.soundPlayer.playSound("./assets/sound3.mp3", true);
-		this.view = new View(this.soundPlayer, 480, 260);		
+		this.view = new View(this.soundPlayer, 500, 260);		
 	}
 	
 	addNodes(snd) {

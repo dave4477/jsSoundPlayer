@@ -3,8 +3,6 @@ import ScrubberControl from './ScrubberControl.js';
 import VolumeControl from './VolumeControl.js';
 import PanningControl from './PanningControl.js';
 import BandControls from './BandControls.js';
-import ReverbControls from './ReverbControls.js';
-import DistortionControl from './DistortionControl.js';
 import GenericXDialControl from './GenericXDialControl.js';
 
 export default class AudioControls {
@@ -70,7 +68,8 @@ export default class AudioControls {
 				defaultValue:0.1 
 
 			});		
-			this.container.appendChild(this.reverbControls.createControl());		
+			let reverbControl = this.reverbControls.createControl();
+			this.container.appendChild(reverbControl);
 		}
 		
 		if (this.sound.getNodeByName("delay")) {
@@ -91,7 +90,7 @@ export default class AudioControls {
 					knobLabelBottom:"Gain", 
 					callback:"setFeedBack", 
 					dialMinValue:0.1, 
-					dialMaxValue:1,
+					dialMaxValue:1,					
 					valueMultiplier:1 
 				}],
 				defaultValue:1 

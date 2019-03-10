@@ -1,4 +1,5 @@
 import KnobControl from './KnobControl.js';
+import LEDControl from './LEDControl.js';
 
 export default class Generic1DialControl {
 	constructor(sound, config) {
@@ -34,15 +35,11 @@ export default class Generic1DialControl {
 		
 		const effectToggle = document.createElement("div");
 		effectToggle.className = "effectToggle";		
-		this.onOff = document.createElement("input");		
-		this.onOff.type = "checkbox";		
+		this.onOff = new LEDControl();
+				
 		const label = document.createElement("label");
-		label.appendChild(this.onOff);
-
-		if (this.config.effectToggle.length > 0) {
-			const labelText = document.createTextNode(this.config.effectToggle);
-			label.appendChild(labelText);
-		}
+		label.appendChild(this.onOff.createControl());
+		
 		effectToggle.appendChild(label);
 		
 		const knobContainer = document.createElement("div");

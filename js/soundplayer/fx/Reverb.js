@@ -1,5 +1,6 @@
 import Loader from './../Loader.js';
 import AbstractAudioNode from './AbstractAudioNode.js';
+import Analyser from './Analyser.js';
 
 /**
  * Creates a reverb effect using a convolver.
@@ -28,10 +29,19 @@ export default class Reverb extends AbstractAudioNode {
 		this._reverb.connect(this._master);
 		this._preAmp.connect(this._master);
 
+		this._analyser = new Analyser();
+		
 		this.input = this._preAmp;
 		this.output = this._master;
+		
+		this._reverb.connect(this._analyser.input);
+		
 		this.setLevel(0);
 		this._loadReverbs();
+	}
+	
+	get impulseBuffer() {
+		return this._reverbs[0].buffer;
 	}
 
 	async _loadReverbs() {
