@@ -3,8 +3,8 @@ A sound player for browsers that support WebAudio in ES6.
 
 The soundplayer uses only ES6 native functionality and no library dependencies.
 
-#Usage example with loaded sound:
-
+<h2>Usage example with loaded sound:</h2>
+<code>
 // URL to sound file.
 const url = "www.example.com/music.mp3";
 
@@ -25,10 +25,10 @@ result[url].addNode("distortion", new Distortion())
 
 // Play the sound.
 this.soundPlayer.playSound(url, true);
-
+</code>
 
 <h2>Usage example with user media (microphone or line-in) sound:</h2>
-;
+<code>
 // Create an instance of soundplayer.
 this.soundPlayer = new SoundPlayer();
 
@@ -45,3 +45,4 @@ this.soundPlayer.streamSoundInput((sound) => {
 	// Play the soundstream.
 	sound.stream();
 });		
+</code>
