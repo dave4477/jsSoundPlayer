@@ -23,7 +23,7 @@ export default class BandpassFilters extends AbstractAudioNode {
 	}
 
 	_createBiquadFilterNode(type, frequency) {
-		let biquadFilter = this._context.createBiquadFilter();
+		const biquadFilter = this._context.createBiquadFilter();
 		biquadFilter.type = type;
 		biquadFilter.frequency.setValueAtTime(frequency, 0);
 		biquadFilter.Q.setValueAtTime(1, 0);

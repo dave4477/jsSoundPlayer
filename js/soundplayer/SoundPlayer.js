@@ -40,13 +40,13 @@ export default class SoundPlayer {
 	loadSounds(sounds) {
 		return new Promise((resolve, reject) => {
 			this._loader.loadFiles(sounds).then((result) => {
-				var numSounds = Object.keys(result).length;
-				var decoded = 0;
+				const numSounds = Object.keys(result).length;
+				let decoded = 0;
 
 				Object.keys(result).forEach(loadedSound => {
 					this._context.decodeAudioData(result[loadedSound], buffer => {
 						if (buffer) {
-							var snd = new Sound(loadedSound, buffer);
+							const snd = new Sound(loadedSound, buffer);
 							this._sounds[snd.id] = snd;
 							decoded ++;
 							if (decoded === numSounds) {
@@ -178,7 +178,7 @@ export default class SoundPlayer {
 	 * @returns {Array} All sounds instances that are currently playing.
 	 */
 	getPlayingSounds() {
-		var playingSounds = [];
+		const playingSounds = [];
 		Object.keys(this._sounds).forEach((key) =>{
 			if (this._sounds[key].isPlaying) {
 				playingSounds.push(this._sounds[key]);

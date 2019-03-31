@@ -49,7 +49,7 @@ export default class Sound {
 		this.scriptNode = this._context.createScriptProcessor(2048, 1, 1);
 		this.scriptNode.onaudioprocess = () => {
 			// get the average for the first channel
-			var array = new Uint8Array(this.analyserNode.node.frequencyBinCount);
+			const array = new Uint8Array(this.analyserNode.node.frequencyBinCount);
 			this.analyserNode.node.getByteFrequencyData(array);
 			if (!this.isStream) {
 				if (this.getCurrentTime() >= this.sourceNode.buffer.duration && this.loop) {
@@ -151,9 +151,9 @@ export default class Sound {
             return;
         }
         if (this._context) {
-			var audioLoadStart = this._contextCreatedAt;
+			const audioLoadStart = this._contextCreatedAt;
 			this.audioLoadOffset = (new Date() - audioLoadStart) / 1000;
-            var newSource = this._context.createBufferSource();
+            const newSource = this._context.createBufferSource();
             newSource.buffer = this.sourceNode.buffer;
             this.sourceNode = newSource;
 			this._connectNodes();
@@ -239,26 +239,6 @@ export default class Sound {
 		this.getNodeByName("panner").value.setPosition(value);
     };
 
-	/**
-	 * Sets the wetness of the reverb. The higher the value, the more reverb.
-	 * Will switch on the effect with immidiately on the sound - latency.
-	 * Therefore there is no reverb on/off setting.
-	 */
-	setReverbLevel(value, time) {
-		this.getNodeByName("reverb").value.setLevel(value, time);
-	}
-
-	setDistortionLevel(value) {
-		this.getNodeByName("distortion").value.setLevel(value);
-	}
-	
-	setDelayTime(value) {
-		this.getNodeByName("delay").value.setDelayTime(value);
-	}
-
-	setFeedBack(value) {
-		this.getNodeByName("delay").value.setFeedBack(value);		
-	}
 	detune(value) {
 		this.sourceNode.detune.value = value;
 	}

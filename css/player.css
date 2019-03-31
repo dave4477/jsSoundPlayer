@@ -19,9 +19,12 @@ body {
 .visualContainer {
 	position:relative;
 	background:#000;
+	border-radius: 12px;
 }
 
 .visualContainer canvas {
+	border-radius: 12px;
+
 }
 .playPause {
 	margin-left :10px;

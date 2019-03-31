@@ -39,7 +39,7 @@ export default class View {
 				this.visualType = 0;
 			}
 		}
-		let div = document.createElement("div");
+		const div = document.createElement("div");
 		div.style.width = w +"px";
 		div.style.height = h +"px";
 		div.className = "visualContainer";
@@ -60,7 +60,7 @@ export default class View {
 	update(dt) {
 		window.requestAnimationFrame(() => this.update());		
 		
-		let snd = (this.player.getPlayingSounds().length > 0) ? this.player.getPlayingSounds()[0] : null;
+		const snd = (this.player.getPlayingSounds().length > 0) ? this.player.getPlayingSounds()[0] : null;
 		if (snd) {
 			if (this.controls.scrubberControl && !snd.isStream) {
 				this.controls.scrubberControl.setValue(snd.getPosition().percent);

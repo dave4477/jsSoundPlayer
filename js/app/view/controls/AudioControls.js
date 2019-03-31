@@ -47,12 +47,34 @@ export default class AudioControls {
 				className:"distortionControl", 
 				effectName:"Distortion", 
 				effectToggle:"Damage", 
+				node:"distortion",
 				dial:[{
+					name:"DistortionDrive",
 					knobLabelBottom:"Drive", 
-					callback:"setDistortionLevel", 
-					valueMultiplier:100
-				}],					
-				defaultValue:10 
+					callback:"setLevel", 
+					valueMultiplier:1,
+					dialMinValue:0.1,
+					dialMaxValue:1000,
+					defaultSetting:500
+				},
+				{
+					name:"Tone",
+					knobLabelBottom:"Tone",
+					callback:"setTone",
+					dialMinValue:0,
+					dialMaxValue:3000,
+					valueMultiplier:1,
+					defaultSetting:1500
+				},
+				{
+					name:"Gain",
+					knobLabelBottom:"Gain", 
+					callback:"setFeedback", 
+					dialMinValue:0, 
+					dialMaxValue:1,					
+					valueMultiplier:1,
+					defaultSetting:0.25
+				}]
 			});
 			this.container.appendChild(this.distortionControl.createControl());		
 		}
@@ -60,13 +82,15 @@ export default class AudioControls {
 			this.reverbControls = new GenericXDialControl(this.sound, { 
 				className:"distortionControl", 
 				effectName:"Reverb", 
-				effectToggle:"On", 
+				effectToggle:"On",
+				node:"reverb",
 				dial:[{
+					name:"reverbLevel",
 					knobLabelBottom:"Level", 
-					callback:"setReverbLevel", 
+					callback:"setLevel", 
 					valueMultiplier:1, 
-				}],
-				defaultValue:0.1 
+					defaultSetting:0.5
+				}]
 
 			});		
 			let reverbControl = this.reverbControls.createControl();
@@ -79,12 +103,11 @@ export default class AudioControls {
 			impulseCanvas.height = 20;
 			impulseCanvas.style.position = "relative";
 			impulseCanvas.style.borderRadius = "8px";
-			var canvasContext = impulseCanvas.getContext('2d');
+			const canvasContext = impulseCanvas.getContext('2d');
 			
 			this.sound.getNodeByName("reverb").value.onImpulseLoaded = (buffer) => {
 				this.impulseSpectrum = new FullSpectrum(impulseCanvas, canvasContext, buffer);
 				this.reverbControls.container.appendChild(impulseCanvas);
-				console.log(reverbControl);
 				this.impulseSpectrum.draw();
 			}
 		}
@@ -94,13 +117,15 @@ export default class AudioControls {
 				className:"distortionControl", 
 				effectName:"Delay", 
 				effectToggle:"On", 
+				node:"delay",
 				dial:[{
 					name:"delayTime",
 					knobLabelBottom:"Delay", 
 					callback:"setDelayTime", 
 					dialMinValue:0, 
 					dialMaxValue:4,
-					valueMultiplier:1
+					valueMultiplier:1,
+					defaultSetting:1
 				}, 
 				{
 					name:"Gain",
@@ -108,13 +133,12 @@ export default class AudioControls {
 					callback:"setFeedBack", 
 					dialMinValue:0.1, 
 					dialMaxValue:1,					
-					valueMultiplier:1 
-				}],
-				defaultValue:1 
+					valueMultiplier:1,
+					defaultSetting:0.42
+				}]
 			});
 			this.container.appendChild(this.delayControls.createControl());
 		}
-
 
 		if (!this.sound.isStream) {
 			this.detuneControl = new GenericXDialControl(this.sound, { 
@@ -122,13 +146,14 @@ export default class AudioControls {
 				effectName:"Detuner", 
 				effectToggle:"On", 
 				dial:[{
+					name:"detuneValue",
 					dialMinValue:-1200, 
 					dialMaxValue:1200,
 					valueMultiplier:1,
 					knobLabelBottom:"Detune", 
-					callback:"detune"					
-				}], 
-				defaultValue:50 
+					callback:"detune",
+					defaultSetting:0
+				}]
 			}); 
 			this.container.appendChild(this.detuneControl.createControl());
 		}

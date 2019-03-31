@@ -10,14 +10,11 @@ export default class GenericXDialControl {
 		this.dialControls = {};
 		
 		for (let i = 0; i < config.dial.length; i++) {
-			let minRotate = config.dial[i].minRotate || 0.1;
-			let maxRotate = config.dial[i].dialMaxRotate || 0.9;
-			let divisions = config.dial[i].dialDivisions || 0;
-			let minRange = config.dial[i].dialMinValue || 0;
-			let maxRange = config.dial[i].dialMaxValue || 1;
-			
-			this.dialControls[config.dial[i].name] = new KnobControl(minRotate, maxRotate, divisions, minRange, maxRange);
+			const { dialMinRotate, dialMaxRotate, divisions, dialMinValue, dialMaxValue, defaultSetting } = config.dial[i];
+			this.dialControls[config.dial[i].name] = new KnobControl(0.1, 0.9, divisions, dialMinValue, dialMaxValue, defaultSetting);
 		}
+			console.log(this.dialControls);
+
 		this.config = config || { className:"genericControl", effectName:"", effectToggle:"", knobLabelBottom:"", callback:"", valueMultiplier:1 };
 
 	}
@@ -47,8 +44,8 @@ export default class GenericXDialControl {
 		knobContainer.className = "knobControlContainer";
 
 		
-		for (var i = 0; i < this.config.dial.length; i++) {
-			var control = this.dialControls[this.config.dial[i].name].createControl();
+		for (let i = 0; i < this.config.dial.length; i++) {
+			const control = this.dialControls[this.config.dial[i].name].createControl();
 			knobContainer.appendChild(control);
 			if (this.config.dial[i].knobLabelBottom.length > 0) {
 			
@@ -67,13 +64,14 @@ export default class GenericXDialControl {
 	}
 	
 	addListeners() {		
-
+		const node = this.config.node && this.sound.getNodeByName(this.config.node).value || this.sound;
+		
 		for (let i = 0; i < this.config.dial.length; i++) {
 			let dial = this.config.dial[i];
 			
 			this.dialControls[dial.name].dial.onchange = (e) => {
 				if (this.onOff.checked) {
-					this.sound[dial.callback](this.dialControls[dial.name].scaledValue * dial.valueMultiplier);
+					node[dial.callback](this.dialControls[dial.name].scaledValue * dial.valueMultiplier);
 				}
 			}
 		}
@@ -83,9 +81,9 @@ export default class GenericXDialControl {
 				let dial = this.config.dial[i];
 
 				if (e.target.checked) {
-					this.sound[dial.callback](this.dialControls[dial.name].scaledValue * dial.valueMultiplier);
+					node[dial.callback](this.dialControls[dial.name].scaledValue * dial.valueMultiplier);
 				} else {
-					this.sound[dial.callback](0);
+					node[dial.callback](0);
 				}
 			}
 		}

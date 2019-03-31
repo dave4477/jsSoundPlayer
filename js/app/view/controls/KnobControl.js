@@ -8,14 +8,15 @@ export default class KnobControl {
 	 * @param {Number} maxRange The maximum clamped value to return in scaledValue against the rotated value.
 	 * @param {Number} defaultValue The default scaledValue that will be returned in the onchange event. Should be between minRange and maxRange. 
 	 */
-	constructor(minRotate = 0.1, maxRotate = 0.9, divisions = 0, minRange = 0, maxRange = 1, defaultValue = 0.1) {
+	constructor(minRotate = 0.1, maxRotate = 0.9, divisions = 0, minRange = 0, maxRange = 1, defaultSetting = 0.1) {
 		this.min = minRotate;
 		this.max = maxRotate;
 		this.minRange = minRange;
 		this.maxRange = maxRange;
 		this.divisions = divisions;
 		this.lastRotation = 0;
-		this.scaledValue = defaultValue;
+		this.defaultSetting = defaultSetting;
+		this.scaledValue = defaultSetting; 
 		this.value = this.scaledValueToValue();
 		this.previousAngle = 0;
 		this.previousValue = 0;
